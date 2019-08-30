@@ -1,3 +1,7 @@
+import { FAlgebra } from './adt';
+
+export * from './adt';
+
 export type StrMap<a = any> = {
   [key: string]: a;
 };
@@ -28,3 +32,8 @@ export type Variant<a> = Faulted | Succeeded<a>;
 export type AsyncTask<a> = Promise<Variant<a>>;
 
 export type ParallelTask<a> = Promise<Variant<a>[]>;
+
+export type Sequence<a> = FAlgebra<a> &
+  IteratorResult<a> & {
+    next: () => Sequence<a>;
+  };

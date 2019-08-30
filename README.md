@@ -1,2 +1,2 @@
-# recubed-tasks
+# @recubed/tasks
 Functional async primitives

@@ -10,7 +10,7 @@
   ],
   "scripts": {
     "lint": "eslint -p tsconfig.json",
-    "build": "tsc -p tsconfig.json",
+    "build": "tsc -p tsconfig.build.json",
     "test": "tap --100",
     "ct": "tap --watch --changed --100 "
   },

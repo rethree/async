@@ -13,7 +13,7 @@ const measured = () => async () => {
 };
 
 // Can't guarantee that because of the nature of parallelism, thankfully if it
-// succeeds once the evidence is there.
+// succeeds just once the evidence is there.
 test('tasks run with Parallel are being run simultaneously, likely', async t => {
   const task = Parallel(measured(), measured(), measured());
   const stamps = (await task()) as Succeeded<number[]>[];

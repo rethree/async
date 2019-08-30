@@ -6,9 +6,9 @@ export const Fault = (meta: StrMap) => (error: Error): Faulted => ({
   meta
 });
 
-export const Success = (meta: StrMap) => <a>(x: a): Succeeded<a> => ({
+export const Success = (meta: StrMap) => <a>(value: a): Succeeded<a> => ({
   tag: 'succeeded',
-  value: x,
+  value,
   meta
 });
 
