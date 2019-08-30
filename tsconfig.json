@@ -4,7 +4,7 @@
     "module": "commonjs",
     "lib": ["esnext", "dom", "dom.iterable", "es2019"],
     "allowJs": false,
-    "outDir": "./lib",
+    "outDir": "./dist",
     "declaration": true,
     "removeComments": true,
     "downlevelIteration": true,
