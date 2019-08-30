@@ -33,7 +33,9 @@ export type AsyncTask<a> = Promise<Variant<a>>;
 
 export type ParallelTask<a> = Promise<Variant<a>[]>;
 
-export type Sequence<a> = FAlgebra<a> &
-  IteratorResult<a> & {
+export type Sequence<a> = FAlgebra<
+  a,
+  IteratorResult<a, a> & {
     next: () => Sequence<a>;
-  };
+  }
+>;

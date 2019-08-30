@@ -12,7 +12,8 @@
     "lint": "eslint -p tsconfig.json",
     "build": "tsc -p tsconfig.build.json",
     "test": "tap --100",
-    "ct": "tap --watch --changed --100 "
+    "test:dev": "tap --no-coverage",
+    "ct": "tap --watch --changed --100"
   },
   "devDependencies": {
     "@types/delay": "^3.1.0",
