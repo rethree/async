@@ -2,11 +2,11 @@
   "name": "@recubed/tasks",
   "version": "0.0.1",
   "description": "Functional async primitives",
-  "main": "lib/index.js",
+  "main": "dist/index.js",
   "author": "tanfonto <tanfonto@pm.me>",
   "license": "MIT",
   "files": [
-    "lib/**/*"
+    "dist/**/*"
   ],
   "scripts": {
     "lint": "eslint -p tsconfig.json",
