@@ -1,9 +1,9 @@
-import { AsyncTask, ParallelTask, Variant, IO } from '../@types';
-import { lift } from './utils/array';
+import { AsyncTask, ParallelTask, Variant } from '../@types';
+import { lift } from './utils';
 
 export const Parallel = <a>(
-  ...tasks: IO<AsyncTask<a>>[]
-): IO<ParallelTask<a>> => () => {
+  ...tasks: AsyncTask<a>[]
+): ParallelTask<a> => () => {
   const results = Array.of<Variant<a>>();
   return new Promise(f => {
     tasks.forEach(async task => {

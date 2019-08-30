@@ -1,6 +1,5 @@
 import { test } from 'tap';
-import { Task } from '../src/task';
-import { isFaulted } from '../src/variants';
+import { isFaulted, Task } from '../src';
 import { expectFaulted, expectSucceeded } from './utils';
 
 test('task should be tagged as "Succeeded" if resolved promise is provided', async t => {
