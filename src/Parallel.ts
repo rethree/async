@@ -3,7 +3,7 @@ import { lift } from './utils/array';
 
 export const Parallel = <a>(
   ...tasks: IO<AsyncTask<a>>[]
-): IO<ParallelTask<a>> => () => {
+): IParallelTask<a> => () => {
   const results = Array.of<Variant<a>>();
   return new Promise(f => {
     tasks.forEach(async task => {
