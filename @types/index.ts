@@ -29,9 +29,9 @@ export type Succeeded<a> = Meta & {
 
 export type Variant<a> = Faulted | Succeeded<a>;
 
-export type AsyncTask<a> = Promise<Variant<a>>;
+export type AsyncTask<a> = IO<Promise<Variant<a>>>;
 
-export type ParallelTask<a> = Promise<Variant<a>[]>;
+export type ParallelTask<a> = IO<Promise<Variant<a>[]>>;
 
 export type Sequence<a> = FAlgebra<
   a,
