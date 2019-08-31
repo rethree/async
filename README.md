@@ -1,6 +1,8 @@
 # @recubed/tasks
 
 [![Build Status](https://travis-ci.org/tanfonto/recubed-tasks.svg?branch=master)](https://travis-ci.org/tanfonto/recubed-tasks)
+[![MIT
+license](https://img.shields.io/badge/License-MIT-blue.svg)](https://lbesson.mit-license.org/)
 
 Curated (arbitrary) set of **functional async primitives**, including lightweigt native wrappers (`Task`), alternatives (`Parallel` -> `Promise.allSettled`) and utilities for non-(yet)-existent features (`Sequence`). Mostly there to support my incoming `Redux` REST client but could be of use independently;
 
