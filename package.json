@@ -9,7 +9,7 @@
     "dist/**/*"
   ],
   "scripts": {
-    "lint": "eslint -p tsconfig.json",
+    "lint": "eslint -c .eslintrc.js src/**/*.ts",
     "build": "tsc -p tsconfig.build.json",
     "test": "tap --100",
     "test:dev": "tap --no-coverage",
@@ -17,8 +17,8 @@
   },
   "devDependencies": {
     "@types/delay": "^3.1.0",
-    "@typescript-eslint/eslint-plugin": "^1.12.0",
-    "@typescript-eslint/parser": "^1.12.0",
+    "@typescript-eslint/eslint-plugin": "^2.0.0",
+    "@typescript-eslint/parser": "^2.0.0",
     "delay": "^4.3.0",
     "eslint": "^6.0.1",
     "tap": "^14.6.1",
