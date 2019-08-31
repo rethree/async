@@ -11,7 +11,7 @@
   "scripts": {
     "lint": "eslint -c .eslintrc.js src/**/*.ts",
     "build": "tsc -p tsconfig.build.json",
-    "test": "tap --100 --coverage-report=text-lcov tests/**/*.test.ts | coveralls",
+    "test": "tap --100 --coverage-report=text-lcov tests/**/*.test.ts",
     "ct": "tap --watch --changed --100"
   },
   "devDependencies": {
