@@ -1,4 +1,4 @@
-import { AsyncTask, ParallelTask, Variant, IO } from '../@types';
+import { AsyncTask, ParallelTask, Variant } from '../@types';
 import { lift } from './utils/array';
 
 export const Parallel = <a>(
