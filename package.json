@@ -12,7 +12,7 @@
     "lint": "eslint -c .eslintrc.js src/**/*.ts",
     "build": "tsc -p tsconfig.build.json",
     "test": "tap --100 tests/**/*.test.ts",
-    "test:dev": "tap --no-coverage",
+    "posttest": "tap --coverage-report=text-lcov | codecov"
     "ct": "tap --watch --changed --100"
   },
   "devDependencies": {
@@ -23,6 +23,7 @@
     "eslint": "^6.0.1",
     "tap": "^14.6.1",
     "ts-node": "^8.3.0",
-    "typescript": "^3.5.2"
+    "typescript": "^3.5.2",
+    "codecov": "^3.5.0"
   }
 }
