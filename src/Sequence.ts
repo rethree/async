@@ -16,7 +16,11 @@ const succ = <a>(x: a, fa: Sequence<a>): Sequence<a> => ({
   value: x
 });
 
-export const Seq = <a>(): InitialAlgebra<a, Sequence<a>> => [nil, succ];
+export const Seq = <a>(): InitialAlgebra<a, Sequence<a>> => [
+  x => succ(x, nil()),
+  succ,
+  nil
+];
 
 export const Cata = <a>(fa: Sequence<a>, f: (x: a, y: a) => a, acc: a): a =>
   fa.done ? acc : Cata(fa.next(), f, f(acc, fa.value));
