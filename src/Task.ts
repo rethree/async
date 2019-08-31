@@ -4,7 +4,7 @@ import { AsyncTask, IO } from '../@types';
 const task = <a, ps extends any[]>(
   x: Promise<a> | ((...args: ps) => Promise<a>),
   ...args: ps
-): IO<AsyncTask<a>> => {
+): AsyncTask<a> => {
   const promise = x instanceof Promise ? x : x(...args);
   return () => promise.then(Success({ args })).catch(Fault({ args }));
 };
