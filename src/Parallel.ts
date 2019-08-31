@@ -1,5 +1,5 @@
 import { AsyncTask, ParallelTask, Variant } from '../@types';
-import { lift } from './utils/array';
+import { lift } from './utils';
 
 export const Parallel = <a>(
   ...tasks: AsyncTask<a>[]
