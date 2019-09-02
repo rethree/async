@@ -2,19 +2,15 @@ import { InitialAlgebra, LinkedList } from '../@types';
 import { trampoline } from './utils';
 
 const nil = <a>(): LinkedList<a> => ({
-  next: nil,
   alg: () => null as any,
   map: _ => nil() as any,
-  done: true,
-  value: null as any
+  succ: nil
 });
 
 const succ = <a>(x: a, fa: LinkedList<a>): LinkedList<a> => ({
   map: f => succ(f(x), fa) as any,
   alg: () => x,
-  next: () => fa,
-  done: false,
-  value: x
+  succ: () => fa
 });
 
 const list = <a>(): InitialAlgebra<a, LinkedList<a>> => [
@@ -24,21 +20,26 @@ const list = <a>(): InitialAlgebra<a, LinkedList<a>> => [
 
 export const List = list;
 
-export const Cata = <a>(fa: LinkedList<a>, f: (acc: a, x: a) => a) => {
-  const run = trampoline(
+export const isNil = <a>(xs: LinkedList<a>) => xs.alg() === null;
+
+export const Cata = <a>(fa: LinkedList<a>, it: (acc: a, x: a) => a): a => {
+  const run = trampoline<a, [LinkedList<a>]>(
     jump =>
-      function rec(acc: a, fa: LinkedList<a>) {
-        return fa.done ? acc : jump(() => rec(f(acc, fa.value), fa.next()));
+      function rec(acc, fa) {
+        return isNil(fa) ? acc : jump(() => rec(it(acc, fa.alg()), fa.succ()));
       }
   );
 
-  return run(fa.value, fa.next()) as a;
+  return run(fa.alg(), fa.succ());
 };
 
-export const Ana = <a>([hd, ...tl]: a[]) =>
-  trampoline(
-    jump =>
-      function rec(fa: LinkedList<a>, [hd, ...tl]: a[]) {
-        return hd ? jump(() => rec(succ(hd, fa), tl)) : fa;
-      }
-  )(succ(hd, nil()), tl) as LinkedList<a>;
+export const Ana = <a>(as: a[]): LinkedList<a> =>
+  as.reduce((acc, x) => succ(x, acc), nil<a>());
+
+export const Enumerator = function*<a>(fa: LinkedList<a>) {
+  let pos = fa;
+  while (pos.alg() !== null) {
+    yield pos.alg();
+    pos = pos.succ();
+  }
+};
