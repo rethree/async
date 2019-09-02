@@ -25,3 +25,9 @@ export const test = (desc: string, f: (t: any) => PromiseLike<void> | void) =>
     f(t);
     t.done();
   });
+
+export function* range(x: number, y: number) {
+  for (let i = x; i <= y; i++) {
+    yield i;
+  }
+}

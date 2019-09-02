@@ -14,4 +14,4 @@ export type InitialAlgebra<
   a,
   w = _,
   Fa extends FAlgebra<a, w> = FAlgebra<a, w>
-> = [(x: a) => Fa, (x: a, fa: Fa) => Fa, () => Fa];
+> = [(x: a, fa?: Fa) => Fa, () => Fa];
