@@ -1,4 +1,4 @@
-import { test, only } from 'tap';
+import { test } from 'tap';
 import { LinkedList } from '../@types';
 import { Ana, Cata, List } from '../src';
 import { range } from './utils';
@@ -121,7 +121,7 @@ test('cata over numbers', async t => {
   t.equals(x, 10);
 });
 
-only('cata over functions', async t => {
+test('cata over functions', async t => {
   const inc = (x: number) => x + 1;
   const [Succ] = List<(x: number) => number>();
   const seq = Succ(inc, Succ(inc, Succ(inc, Succ(inc))));
