@@ -1,5 +1,5 @@
-import { only, test } from 'tap';
-import { Cata, Enumerator, Ana, isNil, List } from '../src';
+import { test } from 'tap';
+import { Ana, Cata, Enumerator, isNil, List } from '../src';
 import { range } from './utils';
 
 const crazy = 50000;
@@ -98,7 +98,7 @@ test('cata over numbers', async t => {
   t.equals(x, 10);
 });
 
-only('cata over functions', async t => {
+test('cata over functions', async t => {
   const inc = (x: number) => x + 1;
   const [Succ] = List<(x: number) => number>();
   const seq = Succ(inc, Succ(inc, Succ(inc, Succ(inc))));
