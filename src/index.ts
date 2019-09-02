@@ -1,4 +1,5 @@
 export * from './Task';
 export * from './Parallel';
-export * from './Sequence';
+export * from './List';
 export * from './variants';
+export * from './utils';

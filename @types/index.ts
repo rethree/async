@@ -1,4 +1,5 @@
 import { FAlgebra } from './adt';
+import { Tr } from '../src/constants';
 
 export * from './adt';
 
@@ -33,9 +34,21 @@ export type AsyncTask<a> = IO<Promise<Variant<a>>>;
 
 export type ParallelTask<a> = IO<Promise<Variant<a>[]>>;
 
-export type Sequence<a> = FAlgebra<
+export type AnyTask<a> = AsyncTask<a> | ParallelTask<a>;
+
+export type LinkedList<a> = FAlgebra<
   a,
   IteratorResult<a, a> & {
-    next: () => Sequence<a>;
+    next: () => LinkedList<a>;
   }
 >;
+
+export type Trampolined<f extends Function> = {
+  [Tr]: f;
+};
+
+export type Step<a, as extends any[]> = (x: a, ...args: as) => a | Jump<a, as>;
+
+export type Jump<a, as extends any[]> = (
+  f: () => Step<a, as>
+) => Trampolined<() => Step<a, as>>;

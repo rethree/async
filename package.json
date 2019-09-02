@@ -12,6 +12,7 @@
     "lint": "eslint -c .eslintrc.js src/**/*.ts",
     "build": "tsc -p tsconfig.build.json",
     "test": "tap --100 tests/**/*.test.ts",
+    "test:dev": "tap --100 tests/**/*.test.ts",
     "posttest": "tap --coverage-report=text-lcov | coveralls",
     "ct": "tap --watch --changed --100"
   },
