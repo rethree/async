@@ -1,5 +1,4 @@
-import { Tr } from '../../constants';
-import { Step, Trampolined, Jump, IO } from '../../../@types';
+import { Step, Trampolined, Jump, IO, Tr } from '../../@types';
 
 const jump = <a, as extends any[]>(
   f: IO<Step<a, as>>

@@ -1,3 +1,3 @@
 export * from './array';
 export * from './combinators';
-export * from './rec';
+export * from './trampoline';

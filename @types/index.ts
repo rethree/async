@@ -1,5 +1,4 @@
 import { FAlgebra } from './adt';
-import { Tr } from '../src/constants';
 
 export * from './adt';
 
@@ -42,6 +41,8 @@ export type LinkedList<a> = FAlgebra<
     next: () => LinkedList<a>;
   }
 >;
+
+export const Tr = Symbol('trampoline');
 
 export type Trampolined<f extends Function> = {
   [Tr]: f;
