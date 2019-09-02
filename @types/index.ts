@@ -1,30 +1,32 @@
 import { FAlgebra } from './adt';
+import { Tr } from './symbols';
 
 export * from './adt';
+export * from './symbols';
 
 export type StrMap<a = any> = {
-  [key: string]: a;
+  readonly [key: string]: a;
 };
 
 export type IO<a> = () => a;
 
 export type Fault = {
-  error: Error;
-  meta: StrMap;
+  readonly error: Error;
+  readonly meta: StrMap;
 };
 
 export type Meta = {
-  meta: StrMap;
+  readonly meta: StrMap;
 };
 
 export type Faulted = Meta & {
-  tag: 'faulted';
-  error: Error;
+  readonly tag: 'faulted';
+  readonly error: Error;
 };
 
 export type Succeeded<a> = Meta & {
-  tag: 'succeeded';
-  value: a;
+  readonly tag: 'succeeded';
+  readonly value: a;
 };
 
 export type Variant<a> = Faulted | Succeeded<a>;
@@ -37,19 +39,17 @@ export type AnyTask<a> = AsyncTask<a> | ParallelTask<a>;
 
 export type LinkedList<a> = FAlgebra<
   a,
-  IteratorResult<a, a> & {
-    next: () => LinkedList<a>;
+  {
+    readonly succ: () => LinkedList<a>;
   }
 >;
-
-export const Tr = Symbol('trampoline');
 
 export type Trampolined<f extends Function> = {
   [Tr]: f;
 };
 
-export type Step<a, as extends any[]> = (x: a, ...args: as) => a | Jump<a, as>;
+export type Step<a, bs extends any[]> = (x: a, ...args: bs) => a | Jump<a, bs>;
 
-export type Jump<a, as extends any[]> = (
-  f: () => Step<a, as>
-) => Trampolined<() => Step<a, as>>;
+export type Jump<a, bs extends any[]> = (
+  f: IO<Step<a, bs>>
+) => Trampolined<IO<Step<a, bs>>>;

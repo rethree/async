@@ -1,23 +1,9 @@
-import { test, only } from 'tap';
-import { LinkedList } from '../@types';
-import { Ana, Cata, List } from '../src';
+import { only, test } from 'tap';
+import { Cata, Enumerator, Ana, isNil, List } from '../src';
 import { range } from './utils';
 
-const isNil = <a>(x: LinkedList<a>) => x.done && x.value === null;
-
-test("Nil's alg() is equal to its value", async t => {
-  const [, Nil] = List();
-  const x = Nil();
-
-  t.equal(x.alg(), x.value);
-});
-
-test('Non-nil sequence has its alg() equal to its value', async t => {
-  const [Succ, Nil] = List();
-  const x = Succ(4, Nil());
-
-  t.equal(x.alg(), x.value);
-});
+const crazy = 50000;
+const array = [...range(0, crazy)];
 
 test('Nil constructor creates a sequence of null', async t => {
   const [, Nil] = List();
@@ -45,14 +31,14 @@ test('non-nil sequence does not start with done', async t => {
   const [Succ, Nil] = List<number>();
   const x = Succ(42, Nil());
 
-  t.equal(x.done, false);
+  t.equal(isNil(x), false);
 });
 
 test('non-nil sequence ends with done', async t => {
   const [Succ, Nil] = List<number>();
   const x = Succ(9001, Succ(42, Nil()));
 
-  t.equal(x.next().next().done, true);
+  t.equal(isNil(x.succ().succ()), true);
 });
 
 test('when mapped, non-nil sequence respects morphism provided', async t => {
@@ -68,7 +54,7 @@ test('when mapped, non-nil sequence preserves successors reference', async t => 
   const x = Succ(9001, Succ(42, Nil()));
   const y = x.map(x => x);
 
-  t.equal(y.next(), x.next());
+  t.equal(y.succ(), x.succ());
 });
 
 test('when mapped, non-nil sequence preserves the structure', async t => {
@@ -76,19 +62,19 @@ test('when mapped, non-nil sequence preserves the structure', async t => {
   const x = Succ(9001, Succ(42, Nil()));
   const y = x.map(x => x);
 
-  t.same(y.next(), x.next());
+  t.same(y.succ(), x.succ());
 });
 
-test('nested sequence preserves values', async t => {
+test('nested sequence preserves.alg()s', async t => {
   const [Succ, Nil] = List<number>();
   const x = Succ(9001, Succ(12, Succ(42, Nil())));
 
   t.equal(x.alg(), 9001);
-  t.equal(x.next().alg(), 12);
+  t.equal(x.succ().alg(), 12);
   t.equal(
     x
-      .next()
-      .next()
+      .succ()
+      .succ()
       .alg(),
     42
   );
@@ -97,20 +83,11 @@ test('nested sequence preserves values', async t => {
 test('Succ(x, Nil) is equivalent to Init(x) alg()', async t => {
   const [Init] = List();
   const x = Init(3);
-  const nil = x.next();
+  const nil = x.succ();
 
-  t.equal(nil.done, true);
-  t.equal(nil.value, null);
-  t.equal(x.done, false);
-  t.equal(x.value, 3);
-});
-
-test('unfolding is stack-safe', async t => {
-  const crazy = 20000;
-  const array = [...range(0, crazy)];
-  const list = Ana<number>(array);
-
-  t.equal(list.value, crazy);
+  t.true(isNil(nil));
+  t.equal(isNil(x), false);
+  t.equal(x.alg(), 3);
 });
 
 test('cata over numbers', async t => {
@@ -139,4 +116,30 @@ test('cata over promises', async t => {
   const f = Cata(seq, (fp0, fp1) => x => fp0(x).then(fp1));
 
   t.equals(await f(0), 4);
+});
+
+test('unfolding is stack-safe', async t => {
+  const stamp = Date.now();
+  const list = Ana<number>(array);
+  console.log(`unfolding took ${Date.now() - stamp} ms`);
+
+  t.equal(list.alg(), crazy);
+});
+
+test('folding is stack-safe', async t => {
+  const list = Ana<number>(array);
+  const stamp = Date.now();
+  const scalar = Cata(list, (y, x) => x + y);
+  console.log(`folding took ${Date.now() - stamp} ms`);
+
+  t.equal(scalar, 1250025000);
+});
+
+test('enumeration is stack-safe', async t => {
+  const list = Ana<number>(array);
+  const stamp = Date.now();
+  const out = [...Enumerator(list)];
+  console.log(`enumeration  took ${Date.now() - stamp} ms`);
+
+  t.equal(out.length - 1, crazy);
 });
