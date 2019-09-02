@@ -1,22 +1,22 @@
 import { Step, Trampolined, Jump, IO, Tr } from '../../@types';
 
-const jump = <a, as extends any[]>(
-  f: IO<Step<a, as>>
-): Trampolined<IO<Step<a, as>>> => ({
+const jump = <a, bs extends any[]>(
+  f: IO<Step<a, bs>>
+): Trampolined<IO<Step<a, bs>>> => ({
   [Tr]: f
 });
 
 const trampolined = <a>(x: a) => typeof x === 'object' && Tr in x;
 
-export const trampoline = <a, as extends any[]>(
-  tf: (x: Jump<a, as>) => Step<a, as>
-) => (acc: a, ...args: as) => {
-  const f = tf(jump);
-  let x = f(acc, ...args);
+export const trampoline = <a, bs extends any[]>(
+  it: (x: Jump<a, bs>) => Step<a, bs>
+) => (acc: a, ...args: bs) => {
+  const f = it(jump);
 
-  while (trampolined(x)) {
-    x = x[Tr]();
+  let pos = f(acc, ...args);
+  while (trampolined(pos)) {
+    pos = pos[Tr]();
   }
 
-  return x as a;
+  return pos as a;
 };
