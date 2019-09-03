@@ -1,4 +1,4 @@
-# @recubed/tasks
+# @recubed/async
 
 [![Build Status](https://travis-ci.org/rethree/async.svg?branch=master)](https://travis-ci.org/rethree/async)
 [![CodeFactor](https://www.codefactor.io/repository/github/rethree/async/badge)](https://www.codefactor.io/repository/github/rethree/async)
