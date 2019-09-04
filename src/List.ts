@@ -1,45 +1,57 @@
-import { InitialAlgebra, LinkedList } from '../@types';
-import { trampoline } from './utils';
+import { LinkedList } from '../@types';
+import { rec } from './utils';
 
 const nil = <a>(): LinkedList<a> => ({
+  len: () => 0,
   alg: () => null as any,
-  map: _ => nil() as any,
+  map: nil,
   succ: nil
 });
 
-const succ = <a>(x: a, fa: LinkedList<a>): LinkedList<a> => ({
-  map: f => succ(f(x), fa) as any,
+// because of (desired) lazy-recursive / immutable nature of the structure
+// mapping over is necessarily slow.
+const map = <a, b>(fa: LinkedList<a>, xf: (x: a) => b): LinkedList<b> =>
+  [...enumerate(fa)].reduceRight<LinkedList<b>>(
+    (acc, x) => cons(xf(x), acc),
+    nil()
+  );
+
+const cons = <a>(x: a, fa: LinkedList<a> = nil()): LinkedList<a> => ({
+  len: () => fa.len() + 1,
+  map: <b>(xf: (x: a) => b) => map(cons(x, fa), xf),
   alg: () => x,
   succ: () => fa
 });
 
-const list = <a>(): InitialAlgebra<a, LinkedList<a>> => [
-  (x, fb = nil()) => succ(x, fb),
-  nil
-];
+export const isEmpty = <a>(xs: LinkedList<a>) =>
+  xs.alg() === null && xs.len() === 0;
 
-export const List = list;
-
-export const isNil = <a>(xs: LinkedList<a>) => xs.alg() === null;
-
-export const Cata = <a>(fa: LinkedList<a>, it: (acc: a, x: a) => a): a => {
-  const run = trampoline<a, [LinkedList<a>]>(
-    jump =>
-      function rec(acc, fa) {
-        return isNil(fa) ? acc : jump(() => rec(it(acc, fa.alg()), fa.succ()));
+const cata = <a>(fa: LinkedList<a>, xf: (acc: a, x: a) => a): a =>
+  rec<a, [LinkedList<a>]>(
+    lift =>
+      function step(acc, fa) {
+        return isEmpty(fa)
+          ? acc
+          : lift(() => step(xf(acc, fa.alg()), fa.succ()));
       }
-  );
+  )(fa.alg(), fa.succ());
 
-  return run(fa.alg(), fa.succ());
-};
+const ana = <a>(as: a[]): LinkedList<a> =>
+  as.reduce((acc, x) => cons(x, acc), nil<a>());
 
-export const Ana = <a>(as: a[]): LinkedList<a> =>
-  as.reduce((acc, x) => succ(x, acc), nil<a>());
-
-export const Enumerator = function*<a>(fa: LinkedList<a>) {
+const enumerate = function*<a>(fa: LinkedList<a>) {
   let pos = fa;
-  while (pos.alg() !== null) {
+  while (!isEmpty(pos)) {
     yield pos.alg();
     pos = pos.succ();
   }
+};
+
+export const List = {
+  Cons: cons,
+  Empty: nil,
+  map,
+  fold: cata,
+  fromArray: ana,
+  enumerate
 };

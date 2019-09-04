@@ -1,4 +1,4 @@
-import { Faulted, Succeeded, StrMap, Variant } from '../@types';
+import { Faulted, Done, StrMap, Variant } from '../@types';
 
 export const Fault = (meta: StrMap) => (error: Error): Faulted => ({
   tag: 'faulted',
@@ -6,8 +6,8 @@ export const Fault = (meta: StrMap) => (error: Error): Faulted => ({
   meta
 });
 
-export const Success = (meta: StrMap) => <a>(value: a): Succeeded<a> => ({
-  tag: 'succeeded',
+export const Success = (meta: StrMap) => <a>(value: a): Done<a> => ({
+  tag: 'done',
   value,
   meta
 });
