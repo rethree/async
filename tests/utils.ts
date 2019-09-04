@@ -1,5 +1,4 @@
-import * as Tap from 'tap';
-import { Variant, Faulted, Succeeded } from '../@types';
+import { Done, Faulted, Variant } from '../@types';
 import { isFaulted } from '../src';
 
 export const expectFaulted = <a>(
@@ -11,20 +10,14 @@ export const expectFaulted = <a>(
   else t.fail('task is in an unexpected (successful) state');
 };
 
-export const expectSucceeded = <a>(
+export const expectDone = <a>(
   task: Variant<a>,
   t: any,
-  test: (succeeded: Succeeded<a>) => PromiseLike<void> | void
+  test: (done: Done<a>) => PromiseLike<void> | void
 ) => {
   if (!isFaulted(task)) test(task);
   else t.fail('task is in an unexpected (faulted) state');
 };
-
-export const test = (desc: string, f: (t: any) => PromiseLike<void> | void) =>
-  Tap.test(desc, t => {
-    f(t);
-    t.done();
-  });
 
 export function* range(x: number, y: number) {
   for (let i = x; i <= y; i++) {

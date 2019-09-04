@@ -1,9 +1,9 @@
 import * as delay from 'delay';
 import { test } from 'tap';
-import { Succeeded } from '../@types';
+import { Done } from '../@types';
 import { Parallel, Task } from '../src';
 import { Success } from '../src/variants';
-import { expectFaulted, expectSucceeded } from './utils';
+import { expectFaulted, expectDone } from './utils';
 
 const measured = () => async () => {
   const before = Date.now();
@@ -16,7 +16,7 @@ const measured = () => async () => {
 // succeeds just once the evidence is there.
 test('tasks run with Parallel are being run simultaneously, likely', async t => {
   const task = Parallel(measured(), measured(), measured());
-  const stamps = (await task()) as Succeeded<number[]>[];
+  const stamps = (await task()) as Done<number[]>[];
   const [parallel] = stamps.reduce<[boolean, { value: number[] }]>(
     ([acc, s0], s1) => [acc && s0.value[1] > s1.value[0], s1],
     [true, { value: [0, Date.now()] }]
@@ -37,7 +37,7 @@ test('the amount of results returned is equal to the amount of tasks provided', 
 test('successful tasks results are being carried over', async t => {
   const task = await Parallel(Task.from(42), Task.from(9001))();
 
-  expectSucceeded(task[0], t, ({ value }) => t.equal(value, 42));
+  expectDone(task[0], t, ({ value }) => t.equal(value, 42));
 });
 
 test('faulted tasks results are being carried over', async t => {
@@ -51,5 +51,5 @@ test('mixed-results tasks results are being carried over', async t => {
   const task = await Parallel(Task.faulted(42), Task.from(9001))();
 
   expectFaulted(task[0], t, ({ error }) => t.equal(error, 42));
-  expectSucceeded(task[1], t, ({ value }) => t.equal(value, 9001));
+  expectDone(task[1], t, ({ value }) => t.equal(value, 9001));
 });

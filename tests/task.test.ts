@@ -1,6 +1,6 @@
 import { test } from 'tap';
 import { isFaulted, Task } from '../src';
-import { expectFaulted, expectSucceeded } from './utils';
+import { expectFaulted, expectDone } from './utils';
 
 test('task should be tagged as "Succeeded" if resolved promise is provided', async t => {
   const task = await Task(Promise.resolve(42))();
@@ -10,13 +10,13 @@ test('task should be tagged as "Succeeded" if resolved promise is provided', asy
 test('Succesful task should carry promise resolution value', async t => {
   const task = await Task(Promise.resolve(42))();
 
-  expectSucceeded(task, t, ({ value }) => t.equal(value, 42));
+  expectDone(task, t, ({ value }) => t.equal(value, 42));
 });
 
 test('Succesful task should carry relevant metadata', async t => {
   const task = await Task(x => Promise.resolve(x), 42)();
 
-  expectSucceeded(task, t, ({ meta }) => t.same(meta, { args: [42] }));
+  expectDone(task, t, ({ meta }) => t.same(meta, { args: [42] }));
 });
 
 test('task should be tagged as "Faulted" if rejected promise is provided', async t => {
@@ -40,13 +40,13 @@ test('Faulted task should carry relevant metadata', async t => {
 test('test.from creates a task from raw value', async t => {
   const task = await Task.from(42)();
 
-  expectSucceeded(task, t, ({ value }) => t.equal(value, 42));
+  expectDone(task, t, ({ value }) => t.equal(value, 42));
 });
 
 test('test.from creates a task from a promise', async t => {
   const task = await Task.from(Promise.resolve(42))();
 
-  expectSucceeded(task, t, ({ value }) => t.equal(value, 42));
+  expectDone(task, t, ({ value }) => t.equal(value, 42));
 });
 
 test('test.faulted creates a task from raw value', async t => {

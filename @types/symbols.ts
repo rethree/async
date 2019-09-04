@@ -1,1 +1,1 @@
-export const Tr = Symbol('trampoline');
+export const Lifted = Symbol('TRAMPOLINE');
