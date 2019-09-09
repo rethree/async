@@ -23,7 +23,7 @@ test('Rec is stack-safe', async t => {
   t.equal(run(0, 100000), 0);
 });
 
-test('Rec can handle function iteration', async t => {
+test('Rec can handle function values', async t => {
   const run = rec<(x: number) => number, [((x: number) => number)[]]>(
     step =>
       function rec(acc, [hd, ...tl]) {

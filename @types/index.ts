@@ -6,7 +6,7 @@ export type StrMap<a = any> = {
   readonly [key: string]: a;
 };
 
-export type IO<a> = () => a;
+export type Lazy<a> = () => a;
 
 export type Fault = {
   readonly error: Error;
@@ -31,11 +31,14 @@ export type Variant<a> = Faulted | Done<a>;
 
 export type Variants<a> = Variant<a>[];
 
-export type AsyncTask<a> = IO<Promise<Variant<a>>>;
+export type AsyncTask<a> = Lazy<Promise<Variant<a>>> &
+  Identity<Promise<Variant<a>>>;
 
-export type ParallelTask<a> = IO<Promise<Variants<a>>>;
+export type ParallelTask<a> = Lazy<Promise<Variants<a>>> &
+  Identity<Promise<Variants<a>>>;
 
-export type AnyTask<a> = IO<Promise<Variant<a> | Variants<a>>>;
+export type AnyTask<a> = AsyncTask<a> | ParallelTask<a>;
+// Lazy<Promise<Variant<a> | Variants<a>>>;
 
 export type FAlgebra<a> = { alg: () => a };
 
@@ -49,11 +52,16 @@ export type LinkedList<a> = {
   readonly map: <b>(f: (x: a) => b) => LinkedList<b>;
 } & Enumerable<a>;
 
-export type FreeList<a> = {
-  readonly succ: () => FreeList<a>;
-  readonly map: <b>(f: (x: FAlgebra<a>) => FAlgebra<b>) => FreeList<b>;
-  readonly chain: <b>(faffb: (ffa: FAlgebra<a>) => FreeList<b>) => FreeList<b>;
+export type Free<a> = {
+  readonly succ: () => Free<a>;
+  readonly map: <b>(f: (x: FAlgebra<a>) => FAlgebra<b>) => Free<b>;
+  readonly chain: <b>(faffb: (ffa: FAlgebra<a>) => Free<b>) => Free<b>;
 } & Enumerable<FAlgebra<a>>;
+
+export type Identity<a> = FAlgebra<a> &
+  Lazy<a> & {
+    map: () => Identity<a>;
+  };
 
 export type Rec<f extends Function> = {
   [Lifted]: f;
@@ -62,5 +70,5 @@ export type Rec<f extends Function> = {
 export type Step<a, bs extends any[]> = (x: a, ...args: bs) => a | Lift<a, bs>;
 
 export type Lift<a, bs extends any[]> = (
-  f: IO<Step<a, bs>>
-) => Rec<IO<Step<a, bs>>>;
+  f: Lazy<Step<a, bs>>
+) => Rec<Lazy<Step<a, bs>>>;
