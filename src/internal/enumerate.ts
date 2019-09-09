@@ -1,5 +1,7 @@
 import { Enumerable } from '../../@types';
 
+export const isEmpty = <a>(fa: Enumerable<a>) => fa.len() < 1;
+
 export const enumerate = function*<a>(fa: Enumerable<a>) {
   let pos = fa;
   while (!isEmpty(pos)) {
@@ -9,5 +11,3 @@ export const enumerate = function*<a>(fa: Enumerable<a>) {
 };
 
 export const asArray = <a>(fa: Enumerable<a>) => [...enumerate(fa)];
-
-export const isEmpty = <a>(fa: Enumerable<a>) => fa.len() < 1;
