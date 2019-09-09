@@ -1,55 +1,30 @@
 import { LinkedList } from '../@types';
-import { rec } from './utils';
+import { asArray, cata, enumerate, cons, nil } from './internal';
 
-const nil = <a>(): LinkedList<a> => ({
-  len: () => 0,
-  alg: () => null as any,
-  map: nil,
-  succ: nil
+const empty = <a>(): LinkedList<a> => ({
+  ...nil(),
+  map: empty
 });
 
 // because of (desired) lazy-recursive / immutable nature of the structure
 // mapping over is necessarily slow.
-const map = <a, b>(fa: LinkedList<a>, xf: (x: a) => b): LinkedList<b> =>
-  [...enumerate(fa)].reduceRight<LinkedList<b>>(
-    (acc, x) => cons(xf(x), acc),
-    nil()
+const map = <a, b, Fa extends LinkedList<a>>(fa: Fa, xf: (x: a) => b) =>
+  asArray(fa).reduceRight<LinkedList<b>>(
+    (acc, x) => prepend(xf(x), acc),
+    empty()
   );
 
-const cons = <a>(x: a, fa: LinkedList<a> = nil()): LinkedList<a> => ({
-  len: () => fa.len() + 1,
-  map: <b>(xf: (x: a) => b) => map(cons(x, fa), xf),
-  alg: () => x,
-  succ: () => fa
+const prepend = <a>(x: a, fa: LinkedList<a> = empty()): LinkedList<a> => ({
+  ...cons<a, LinkedList<a>>(x, fa),
+  map: <b>(xf: (x: a) => b) => map(prepend(x, fa), xf)
 });
 
-export const isEmpty = <a>(xs: LinkedList<a>) =>
-  xs.alg() === null && xs.len() === 0;
-
-const cata = <a>(fa: LinkedList<a>, xf: (acc: a, x: a) => a): a =>
-  rec<a, [LinkedList<a>]>(
-    lift =>
-      function step(acc, fa) {
-        return isEmpty(fa)
-          ? acc
-          : lift(() => step(xf(acc, fa.alg()), fa.succ()));
-      }
-  )(fa.alg(), fa.succ());
-
 const ana = <a>(as: a[]): LinkedList<a> =>
-  as.reduce((acc, x) => cons(x, acc), nil<a>());
-
-const enumerate = function*<a>(fa: LinkedList<a>) {
-  let pos = fa;
-  while (!isEmpty(pos)) {
-    yield pos.alg();
-    pos = pos.succ();
-  }
-};
+  as.reduce((acc, x) => prepend(x, acc), empty<a>());
 
 export const List = {
-  Cons: cons,
-  Empty: nil,
+  Cons: prepend,
+  Empty: empty,
   map,
   fold: cata,
   fromArray: ana,

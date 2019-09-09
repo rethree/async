@@ -1,8 +1,8 @@
-import { Step, Rec, Lift, IO, Lifted } from '../../@types';
+import { Step, Rec, Lift, Lazy, Lifted } from '../../@types';
 
 const step = <a, bs extends any[]>(
-  f: IO<Step<a, bs>>
-): Rec<IO<Step<a, bs>>> => ({
+  f: Lazy<Step<a, bs>>
+): Rec<Lazy<Step<a, bs>>> => ({
   [Lifted]: f
 });
 

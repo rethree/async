@@ -37,20 +37,26 @@ test('Faulted task should carry relevant metadata', async t => {
   expectFaulted(task, t, ({ meta }) => t.same(meta, { args: [42] }));
 });
 
-test('test.from creates a task from raw value', async t => {
+test('task.from creates a task from raw value', async t => {
   const task = await Task.from(42)();
 
   expectDone(task, t, ({ value }) => t.equal(value, 42));
 });
 
-test('test.from creates a task from a promise', async t => {
+test('task.from creates a task from a promise', async t => {
   const task = await Task.from(Promise.resolve(42))();
 
   expectDone(task, t, ({ value }) => t.equal(value, 42));
 });
 
-test('test.faulted creates a task from raw value', async t => {
+test('task.faulted creates a task from raw value', async t => {
   const task = await Task.faulted(42)();
 
   expectFaulted(task, t, ({ error }) => t.equal(error, 42));
+});
+
+test('task is an f-algebra', async t => {
+  const task = Task.from(42);
+
+  t.type(task.alg, 'function');
 });

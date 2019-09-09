@@ -1,16 +1,16 @@
 import * as delay from 'delay';
 import { test } from 'tap';
 import { Done } from '../@types';
-import { Parallel, Task } from '../src';
-import { Success } from '../src/variants';
-import { expectFaulted, expectDone } from './utils';
+import { lift, Parallel, Task } from '../src';
+import { expectDone, expectFaulted } from './utils';
 
-const measured = () => async () => {
-  const before = Date.now();
-  await delay(1000);
-  const after = Date.now();
-  return Success({})([before, after]);
-};
+const measured = () =>
+  Task(async () => {
+    const before = Date.now();
+    await delay(1000);
+    const after = Date.now();
+    return [before, after];
+  });
 
 // Can't guarantee that because of the nature of parallelism, thankfully if it
 // succeeds just once the evidence is there.
@@ -52,4 +52,18 @@ test('mixed-results tasks results are being carried over', async t => {
 
   expectFaulted(task[0], t, ({ error }) => t.equal(error, 42));
   expectDone(task[1], t, ({ value }) => t.equal(value, 9001));
+});
+
+test('lift wraps non-array value in an array', t => {
+  const x = lift(42);
+
+  t.deepEqual(x, [42]);
+  t.done();
+});
+
+test('lift leaves array untouched', t => {
+  const x = lift([42]);
+
+  t.deepEqual(x, [42]);
+  t.done();
 });
