@@ -8,11 +8,6 @@ export type StrMap<a = any> = {
 
 export type Lazy<a> = () => a;
 
-export type Fault = {
-  readonly error: Error;
-  readonly meta: StrMap;
-};
-
 export type Meta = {
   readonly meta: StrMap;
 };
