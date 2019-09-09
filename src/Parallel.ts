@@ -1,5 +1,6 @@
 import { AsyncTask, ParallelTask, Variant } from '../@types';
-import { lift } from './utils';
+
+export const lift = <a>(xs: a) => (Array.isArray(xs) ? xs : [xs]) as a & any[];
 
 export const Parallel = <a>(
   ...tasks: AsyncTask<a>[]

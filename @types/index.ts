@@ -37,27 +37,23 @@ export type ParallelTask<a> = IO<Promise<Variants<a>>>;
 
 export type AnyTask<a> = IO<Promise<Variant<a> | Variants<a>>>;
 
-export type Functor<a> = {
-  map: <b>(f: (x: a) => b) => Functor<b>;
-};
+export type FAlgebra<a> = { alg: () => a };
 
-export type FAlgebra<a> = Functor<a> & { alg: () => a };
+export type Enumerable<a> = FAlgebra<a> & {
+  len: () => number;
+  readonly succ: () => Enumerable<a>;
+};
 
 export type LinkedList<a> = {
   readonly succ: () => LinkedList<a>;
-  readonly len: () => number;
   readonly map: <b>(f: (x: a) => b) => LinkedList<b>;
-} & FAlgebra<a>;
+} & Enumerable<a>;
 
-// export type FreeList<a> = FAlgebra<
-//   FAlgebra<a>,
-//   {
-//     hkt: FreeList<a>;
-//   },
-//   {
-//     chain: <b>(faffb: (ffa: FAlgebra<a>) => FreeList<b>) => FreeList<b>;
-//   }
-// >;
+export type FreeList<a> = {
+  readonly succ: () => FreeList<a>;
+  readonly map: <b>(f: (x: FAlgebra<a>) => FAlgebra<b>) => FreeList<b>;
+  readonly chain: <b>(faffb: (ffa: FAlgebra<a>) => FreeList<b>) => FreeList<b>;
+} & Enumerable<FAlgebra<a>>;
 
 export type Rec<f extends Function> = {
   [Lifted]: f;

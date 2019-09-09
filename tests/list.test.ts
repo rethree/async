@@ -1,6 +1,7 @@
 import { test } from 'tap';
 import { AsyncTask, Done } from '../@types';
-import { isEmpty, List, Success, Task } from '../src';
+import { List, Success, Task } from '../src';
+import { isEmpty } from '../src/internal/enumerate';
 import { range } from './utils';
 
 const { fromArray, Empty, Cons, enumerate, fold } = List;

@@ -1,7 +1,7 @@
 import * as delay from 'delay';
 import { test } from 'tap';
 import { Done } from '../@types';
-import { Parallel, Task } from '../src';
+import { Parallel, Task, lift } from '../src';
 import { Success } from '../src/variants';
 import { expectFaulted, expectDone } from './utils';
 
@@ -52,4 +52,18 @@ test('mixed-results tasks results are being carried over', async t => {
 
   expectFaulted(task[0], t, ({ error }) => t.equal(error, 42));
   expectDone(task[1], t, ({ value }) => t.equal(value, 9001));
+});
+
+test('lift wraps non-array value in an array', t => {
+  const x = lift(42);
+
+  t.deepEqual(x, [42]);
+  t.done();
+});
+
+test('lift leaves array untouched', t => {
+  const x = lift([42]);
+
+  t.deepEqual(x, [42]);
+  t.done();
 });
