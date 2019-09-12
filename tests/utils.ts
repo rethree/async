@@ -1,26 +1,20 @@
-import { Done, Faulted, Variant } from '../@types';
-import { isFaulted } from '../src';
+import { Completion, Failure, Option } from '../@types';
+import { allCompleted, isFaulted } from '../src';
 
 export const expectFaulted = <a>(
-  task: Variant<a>,
+  task: Option<a>[],
   t: any,
-  test: (faulted: Faulted) => PromiseLike<void> | void
+  test: (results: Failure[]) => PromiseLike<void> | void
 ) => {
-  if (isFaulted(task)) test(task);
+  if (!allCompleted(task)) test(task.filter(isFaulted));
   else t.fail('task is in an unexpected (successful) state');
 };
 
-export const expectDone = <a>(
-  task: Variant<a>,
+export const expectCompleted = <a>(
+  task: Option<a>[],
   t: any,
-  test: (done: Done<a>) => PromiseLike<void> | void
+  test: (completed: Completion<a>[]) => PromiseLike<void> | void
 ) => {
-  if (!isFaulted(task)) test(task);
+  if (allCompleted(task)) test(task);
   else t.fail('task is in an unexpected (faulted) state');
 };
-
-export function* range(x: number, y: number) {
-  for (let i = x; i <= y; i++) {
-    yield i;
-  }
-}

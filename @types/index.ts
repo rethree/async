@@ -1,6 +1,4 @@
-import { Lifted } from './symbols';
-
-export * from './symbols';
+export type _ = unknown;
 
 export type StrMap<a = any> = {
   readonly [key: string]: a;
@@ -12,58 +10,36 @@ export type Meta = {
   readonly meta: StrMap;
 };
 
-export type Faulted = Meta & {
+export type Failure = Meta & {
   readonly tag: 'faulted';
-  readonly error: Error;
+  readonly fault: any;
 };
 
-export type Done<a> = Meta & {
-  readonly tag: 'done';
+export type Completion<a> = Meta & {
+  readonly tag: 'completed';
   readonly value: a;
 };
 
-export type Variant<a> = Faulted | Done<a>;
+export type Option<a> = Failure | Completion<a>;
 
-export type Variants<a> = Variant<a>[];
+export type AsyncTask<a> = Promise<Option<a>[]>;
 
-export type AsyncTask<a> = Lazy<Promise<Variant<a>>> &
-  Identity<Promise<Variant<a>>>;
+export type LazyTask<a> = Lazy<AsyncTask<a>>;
 
-export type ParallelTask<a> = Lazy<Promise<Variants<a>>> &
-  Identity<Promise<Variants<a>>>;
-
-export type AnyTask<a> = AsyncTask<a> | ParallelTask<a>;
-// Lazy<Promise<Variant<a> | Variants<a>>>;
-
-export type FAlgebra<a> = { alg: () => a };
-
-export type Enumerable<a> = FAlgebra<a> & {
-  len: () => number;
-  readonly succ: () => Enumerable<a>;
+export type Functor<a> = {
+  map: <b>(f: (x: a) => b) => Functor<b>;
 };
 
-export type LinkedList<a> = {
-  readonly succ: () => LinkedList<a>;
-  readonly map: <b>(f: (x: a) => b) => LinkedList<b>;
-} & Enumerable<a>;
+export type Extract<a> = () => a;
 
-export type Free<a> = {
-  readonly succ: () => Free<a>;
-  readonly map: <b>(f: (x: FAlgebra<a>) => FAlgebra<b>) => Free<b>;
-  readonly chain: <b>(faffb: (ffa: FAlgebra<a>) => Free<b>) => Free<b>;
-} & Enumerable<FAlgebra<a>>;
-
-export type Identity<a> = FAlgebra<a> &
-  Lazy<a> & {
-    map: () => Identity<a>;
-  };
-
-export type Rec<f extends Function> = {
-  [Lifted]: f;
-};
-
-export type Step<a, bs extends any[]> = (x: a, ...args: bs) => a | Lift<a, bs>;
-
-export type Lift<a, bs extends any[]> = (
-  f: Lazy<Step<a, bs>>
-) => Rec<Lazy<Step<a, bs>>>;
+export type ContinuationComonad<a> = {
+  map: <b>(
+    f: (ca: Completion<a>[]) => LazyTask<b>
+  ) => ContinuationComonad<a | b>;
+  pipe: <b>(
+    f: (ca: Completion<a>[]) => LazyTask<b>
+  ) => ContinuationComonad<a | b>;
+  extend: <b>(
+    f: (wa: ContinuationComonad<a>) => AsyncTask<b>
+  ) => ContinuationComonad<b>;
+} & Extract<AsyncTask<a>>;
