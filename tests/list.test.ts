@@ -1,17 +1,14 @@
 import { test } from 'tap';
-import { AsyncTask, Done } from '../@types';
-import { Id, List, Success, Task } from '../src';
-import { isEmpty } from '../src/internal';
+import { fromArray, List } from '../src';
+import { asArray, cata, isEmpty } from '../src/utils';
 import { range } from './utils';
-
-const { fromArray, Empty, Cons, fold } = List;
 
 const crazy = 50000;
 const array = [...range(0, crazy)];
 const list = fromArray(array);
 
 test('List constructed with Empty() creates a list of null', async t => {
-  const list = Empty();
+  const list = List();
 
   t.equal(list.alg(), null);
 
@@ -33,7 +30,7 @@ test('List constructed with Empty() creates a list of null', async t => {
 });
 
 test('List constructed with Cons() does not start with null', async t => {
-  const list = Cons(9001, Cons(42, Cons(7, Cons(0))));
+  const list = List(9001, List(42, List(7, List(0))));
 
   t.equal(isEmpty(list), false);
 
@@ -51,7 +48,7 @@ test('List constructed with Cons() does not start with null', async t => {
   });
 
   test('when mapped, non-empty list preserves structure', async t => {
-    const x = Cons(9001, Cons(42));
+    const x = List(9001, List(42));
     const y = x.map(x => x);
 
     t.same(y.succ(), x.succ());
@@ -84,60 +81,43 @@ test('List constructed with Cons() does not start with null', async t => {
   });
 });
 
-test('fold over numbers', async t => {
-  const seq = Cons(4, Cons(3, Cons(2, Cons(1))));
-  const x = fold(seq, (x, y) => x + y);
+test('cata over numbers', async t => {
+  const list = List(4, List(3, List(2, List(1))));
+  const x = cata(list, (x, y) => x + y);
 
   t.equals(x, 10);
 });
 
-test('fold over functions', async t => {
+test('cata over functions', async t => {
   const inc = (x: number) => x + 1;
-  const { Cons, fold } = List;
-  const seq = Cons(inc, Cons(inc, Cons(inc, Cons(inc))));
-  const f = fold(seq, (f0, f1) => x => f1(f0(x)));
+  const list = List(inc, List(inc, List(inc, List(inc))));
+  const f = cata(list, (f0, f1) => x => f1(f0(x)));
 
   t.equals(f(0), 4);
 });
 
-test('fold over promises', async t => {
+test('cata over promises', async t => {
   type P = (x: number) => Promise<number>;
 
   const inc: P = x => Promise.resolve(x + 1);
-  const { Cons, fold } = List;
-  const seq = Cons(inc, Cons(inc, Cons(inc, Cons(inc))));
-  const f = fold(seq, (fp0, fp1) => x => fp0(x).then(fp1));
+  const list = List(inc, List(inc, List(inc, List(inc))));
+  const f = cata(list, (fp0, fp1) => x => fp0(x).then(fp1));
 
   t.equals(await f(0), 4);
-});
-
-test('fold over tasks', async t => {
-  type P = (x: Done<number>) => AsyncTask<number>;
-
-  const inc: P = x => Task.from(x.value + 1);
-  const { Cons, fold } = List;
-  const seq = Cons(inc, Cons(inc, Cons(inc, Cons(inc))));
-  const f = fold(seq, (fp0, fp1) => x =>
-    Id(() => fp0(x)().then(y => fp1(y as Done<number>)()))
-  );
-
-  const { value } = (await f(Success({})(0))()) as Done<number>;
-
-  t.equals(value, 4);
 });
 
 test('unfolding is stack-safe', async t => {
   const stamp = Date.now();
   const list = fromArray(array);
-  console.log(`unfolding ${crazy} elements took ${Date.now() - stamp} ms`);
+  console.log(`uncataing ${crazy} elements took ${Date.now() - stamp} ms`);
 
   t.equal(list.alg(), crazy);
 });
 
 test('folding is stack-safe', async t => {
   const stamp = Date.now();
-  const scalar = fold(list, (y, x) => x + y);
-  console.log(`folding ${crazy} elements took ${Date.now() - stamp} ms`);
+  const scalar = cata(list, (y, x) => x + y);
+  console.log(`cataing ${crazy} elements took ${Date.now() - stamp} ms`);
 
   t.equal(scalar, 1250025000);
 });
@@ -146,7 +126,17 @@ test('mapping is stack-safe', async t => {
   const stamp = Date.now();
   const mapped = list.map(x => x + 1);
   console.log(`mapping over ${crazy} elements took ${Date.now() - stamp} ms`);
-  const scalar = fold(mapped, (y, x) => x + y);
+  const scalar = cata(mapped, (y, x) => x + y);
 
   t.equal(scalar, 1250025000 + crazy + 1);
+});
+
+test('enumeration is stack-safe', async t => {
+  const stamp = Date.now();
+  const out = [...asArray(list)];
+  console.log(
+    `enumerating over ${crazy} elements took ${Date.now() - stamp} ms`
+  );
+
+  t.equal(out.length - 1, crazy);
 });

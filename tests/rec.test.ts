@@ -1,5 +1,5 @@
 import { test } from 'tap';
-import { rec } from '../src/internal';
+import { rec } from '../src/utils';
 
 test('Rec recursively applies function provided', async t => {
   const run = rec<number, [number]>(

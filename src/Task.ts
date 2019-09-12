@@ -1,18 +1,25 @@
-import { Fault, Success } from './variants';
-import { AsyncTask } from '../@types';
-import { Id } from './Identity';
+import { AsyncTask, Completion, Option } from '../@types';
+import { Completed, Faulted, allCompleted } from './options';
 
-const task = <a, bs extends any[]>(
+export const Task = <a, bs extends any[]>(
   x: Promise<a> | ((...args: bs) => Promise<a>),
   ...args: bs
 ): AsyncTask<a> => {
   const promise = x instanceof Promise ? x : x(...args);
-  return Id(() => promise.then(Success({ args })).catch(Fault({ args })));
+  return () =>
+    promise.then(x => Completed(x, { args })).catch(x => Faulted(x, { args }));
 };
 
-task.from = <a>(x: a | Promise<a>): AsyncTask<a> =>
-  task(x instanceof Promise ? x : Promise.resolve(x));
+export const complete = <a>(x: a | Promise<a>): AsyncTask<a> =>
+  Task(x instanceof Promise ? x : Promise.resolve(x));
 
-task.faulted = <a>(x: a): AsyncTask<a> => task(Promise.reject(x));
+export const fail = <a>(x: a): AsyncTask<a> => Task(Promise.reject(x));
 
-export const Task = task;
+export const pipe = <a, b>(
+  task: Promise<Option<a>[]>,
+  f: (x: Completion<a>[]) => b
+) => task.then(x => (allCompleted(x) ? Completed(f(x)) : x));
+
+export * from './Parallel';
+
+export * from './Sequence';
