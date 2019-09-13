@@ -9,6 +9,11 @@ Status](https://david-dm.org/rethree/async/status.svg)](https://david-dm.org/ret
 [![devDependencies Status](https://david-dm.org/rethree/async/dev-status.svg)](https://david-dm.org/rethree/async?type=dev)
 
 
-Curated (aka arbitrary) set of **functional async primitives**, including lightweigt native wrappers (`Task`), alternatives (`Parallel` -> `Promise.allSettled`) and utilities for non-(yet)-existent features (`Sequence`). Mostly there to support my incoming `Redux` REST client but could be of use independently;
+Curated (aka arbitrary) set of **functional async primitives**, including lightweigt native wrappers (`Task`), alternatives (`Parallel` -> `Promise.allSettled`) and utilities for non-(yet)-existent features (`Continuation`). Mostly there to support my incoming `Redux` REST client but could be of use independently;
 
 Heavily influenced by ideas borrowed from functional languages (i.e. purity, function composition, variants, comonads, f-algebras, catamorphisms) and other JavaScript libraries (e.g. `fp-ts`).
+
+#### incoming
+* Docs
+* Free Continuation, trampolined
+* Retry
