@@ -32,12 +32,14 @@ export type Functor<a> = {
 
 export type Extract<a> = () => a;
 
-export type ContinuationMonad<a> = {
-  map: <b>(f: (ca: Completion<a>[]) => LazyTask<b>) => ContinuationMonad<a | b>;
+export type ContinuationComonad<a> = {
+  map: <b>(
+    f: (ca: Completion<a>[]) => LazyTask<b>
+  ) => ContinuationComonad<a | b>;
   pipe: <b>(
     f: (ca: Completion<a>[]) => LazyTask<b>
-  ) => ContinuationMonad<a | b>;
+  ) => ContinuationComonad<a | b>;
   extend: <b>(
-    f: (wa: ContinuationMonad<a>) => AsyncTask<b>
-  ) => ContinuationMonad<b>;
+    f: (wa: ContinuationComonad<a>) => AsyncTask<b>
+  ) => ContinuationComonad<b>;
 } & Extract<AsyncTask<a>>;
