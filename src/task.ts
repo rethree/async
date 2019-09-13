@@ -4,10 +4,9 @@ import { Completed, Faulted } from './options';
 export const Task = <a, bs extends any[]>(
   x: Promise<a> | ((...args: bs) => Promise<a>),
   ...args: bs
-): LazyTask<a> => {
+): LazyTask<a> => () => {
   const promise = x instanceof Promise ? x : x(...args);
-  return () =>
-    promise.then(x => Completed(x, { args })).catch(x => Faulted(x, { args }));
+  return promise.then(x => Completed(x, { args })).catch(x => Faulted(x, { args }));
 };
 
 export const complete = <a>(x: a | Promise<a>): LazyTask<a> =>
