@@ -14,17 +14,17 @@ export const apply = <a, b>(f: (x: Completion<a>[]) => LazyTask<b>) => (
   (allCompleted(results) ? f(results)() : results) as any;
 
 export const Continuation = <a>(x: LazyTask<a>): ContinuationComonad<a> => {
-  const cont: Pick<ContinuationComonad<a>, 'map' | 'extend' | 'pipe'> = {
+  const me: Pick<ContinuationComonad<a>, 'map' | 'extend' | 'pipe'> = {
     extend: f =>
       Continuation(() =>
         x().then(a => (allCompleted(a) ? f(Continuation(from(a))) : a) as any)
       ),
-    pipe: f => Continuation(x).extend(wa => wa().then(apply(f))),
+    pipe: f => me.extend(wa => wa().then(apply(f))),
     map: f => {
       const ran = x().then(apply(f));
       return Continuation(() => ran);
     }
   };
 
-  return Object.assign(() => x(), cont);
+  return Object.assign(() => x(), me);
 };
