@@ -34,7 +34,7 @@ export type Extract<a> = () => a;
 
 export type ContinuationMonad<a> = {
   map: <b>(f: (ca: Completion<a>[]) => LazyTask<b>) => ContinuationMonad<a | b>;
-  continueWith: <b>(
+  pipe: <b>(
     f: (ca: Completion<a>[]) => LazyTask<b>
   ) => ContinuationMonad<a | b>;
   extend: <b>(

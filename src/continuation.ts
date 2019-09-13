@@ -13,16 +13,16 @@ export const apply = <a, b>(f: (x: Completion<a>[]) => LazyTask<b>) => (
 ): Failure[] | Completion<b>[] =>
   (allCompleted(results) ? f(results)() : results) as any;
 
-export const Pipe = <a>(x: LazyTask<a>): ContinuationMonad<a> => {
+export const Continuation = <a>(x: LazyTask<a>): ContinuationMonad<a> => {
   const cont: Pick<ContinuationMonad<a>, 'map' | 'extend' | 'continueWith'> = {
     extend: f =>
-      Pipe(() =>
-        x().then(a => (allCompleted(a) ? f(Pipe(from(a))) : a) as any)
+      Continuation(() =>
+        x().then(a => (allCompleted(a) ? f(Continuation(from(a))) : a) as any)
       ),
-    continueWith: f => Pipe(x).extend(wa => wa().then(apply(f))),
+    continueWith: f => Continuation(x).extend(wa => wa().then(apply(f))),
     map: f => {
       const ran = x().then(apply(f));
-      return Pipe(() => ran);
+      return Continuation(() => ran);
     }
   };
 

@@ -1,10 +1,10 @@
 import { test } from 'tap';
-import { apply, complete, fail, Parallel, Pipe, Task } from '../src';
+import { apply, complete, fail, Parallel, Continuation, Task } from '../src';
 
 test('map is eager', async t => {
   const effects: number[] = [];
 
-  Pipe(complete(10))
+  Continuation(complete(10))
     .map(_ => {
       effects.push(0);
       return complete('a');
@@ -20,7 +20,7 @@ test('map is eager', async t => {
 });
 
 test('map carries failures', async t => {
-  const piped = await Pipe(complete(10))
+  const piped = await Continuation(complete(10))
     .map(_ => fail(12))
     .map(_ => complete(9001))();
 
@@ -29,7 +29,7 @@ test('map carries failures', async t => {
 });
 
 test('extend carries failures', async t => {
-  const piped = await Pipe(complete(10))
+  const piped = await Continuation(complete(10))
     .extend(wa => wa().then(fail(12)))
     .extend(wb => wb().then(complete(9001)))();
 
@@ -37,17 +37,17 @@ test('extend carries failures', async t => {
   t.equal(piped[0]['fault'], 12);
 });
 
-test('continueWith carries failures', async t => {
-  const piped = await Pipe(complete(10))
-    .continueWith(_ => fail(12))
-    .continueWith(_ => complete(9001))();
+test('pipe carries failures', async t => {
+  const piped = await Continuation(complete(10))
+    .pipe(_ => fail(12))
+    .pipe(_ => complete(9001))();
 
   t.equal(piped.length, 1);
   t.equal(piped[0]['fault'], 12);
 });
 
 test('map carries completions', async t => {
-  const piped = await Pipe(complete(10))
+  const piped = await Continuation(complete(10))
     .map(_ => complete(12))
     .map(_ => complete(9001))();
 
@@ -56,7 +56,7 @@ test('map carries completions', async t => {
 });
 
 test('extend carries completions', async t => {
-  const piped = await Pipe(complete(10))
+  const piped = await Continuation(complete(10))
     .extend(wa => wa().then(complete(12)))
     .extend(wb => wb().then(complete(9001)))();
 
@@ -64,17 +64,17 @@ test('extend carries completions', async t => {
   t.equal(piped[0]['value'], 9001);
 });
 
-test('continueWith carries completions', async t => {
-  const piped = await Pipe(complete(10))
-    .continueWith(_ => complete(12))
-    .continueWith(_ => complete(9001))();
+test('pipe carries completions', async t => {
+  const piped = await Continuation(complete(10))
+    .pipe(_ => complete(12))
+    .pipe(_ => complete(9001))();
 
   t.equal(piped.length, 1);
   t.equal(piped[0]['value'], 9001);
 });
 
 test('map carries parallel tasks', async t => {
-  const piped = await Pipe(complete(10)).map(_ =>
+  const piped = await Continuation(complete(10)).map(_ =>
     Parallel(complete(12), fail(10))
   )();
 
@@ -84,7 +84,7 @@ test('map carries parallel tasks', async t => {
 });
 
 test('extend carries parallel tasks', async t => {
-  const piped = await Pipe(complete(10)).extend(wa =>
+  const piped = await Continuation(complete(10)).extend(wa =>
     wa().then(Parallel(complete(12), fail(10)))
   )();
 
@@ -93,8 +93,8 @@ test('extend carries parallel tasks', async t => {
   t.equal(piped[1]['fault'], 10);
 });
 
-test('continueWith carries parallel tasks', async t => {
-  const piped = await Pipe(complete(10)).continueWith(_ =>
+test('pipe carries parallel tasks', async t => {
+  const piped = await Continuation(complete(10)).pipe(_ =>
     Parallel(complete(12), fail(10))
   )();
 
@@ -104,7 +104,7 @@ test('continueWith carries parallel tasks', async t => {
 });
 
 test('mapped results are transformed according to morphism provided', async t => {
-  const piped = await Pipe(complete(10))
+  const piped = await Continuation(complete(10))
     .map(([x]) => complete(x.value + 6))
     .map(([x]) => Task(Promise.resolve(x.value + 5)))
     .map(([x]) => complete(x.value * 2))();
@@ -114,7 +114,7 @@ test('mapped results are transformed according to morphism provided', async t =>
 });
 
 test('extended results are transformed according to morphism provided', async t => {
-  const piped = await Pipe(complete(10))
+  const piped = await Continuation(complete(10))
     .extend(wa => wa().then(apply(([x]) => Task(Promise.resolve(x.value + 5)))))
     .extend(wa => wa().then(apply(([x]) => Task(Promise.resolve(x.value + 6)))))
     .extend(wa => wa().then(apply(([x]) => complete(x.value * 2))))();
@@ -123,11 +123,11 @@ test('extended results are transformed according to morphism provided', async t 
   t.equal(piped[0]['value'], 42);
 });
 
-test('results extended by continueWith are transformed according to morphism provided', async t => {
-  const piped = await Pipe(complete(10))
-    .continueWith(([x]) => complete(x.value + 6))
-    .continueWith(([x]) => Task(Promise.resolve(x.value + 5)))
-    .continueWith(([x]) => complete(x.value * 2))();
+test('results extended by pipe are transformed according to morphism provided', async t => {
+  const piped = await Continuation(complete(10))
+    .pipe(([x]) => complete(x.value + 6))
+    .pipe(([x]) => Task(Promise.resolve(x.value + 5)))
+    .pipe(([x]) => complete(x.value * 2))();
 
   t.equal(piped.length, 1);
   t.equal(piped[0]['value'], 42);

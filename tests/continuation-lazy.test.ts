@@ -1,5 +1,5 @@
 import T from 'tap';
-import { complete, fail, Pipe, apply } from '../src';
+import { complete, fail, Continuation, apply } from '../src';
 import delay = require('delay');
 
 T.jobs = 8;
@@ -9,7 +9,7 @@ const { test } = T;
 test('chained extend is lazy, likely', async t => {
   const effects = new Map<number, number>();
 
-  Pipe(complete(10))
+  Continuation(complete(10))
     .extend(wa => {
       effects.set(0, Date.now());
       return wa().then(complete('a'));
@@ -27,7 +27,7 @@ test('chained extend is lazy, likely', async t => {
 test('chained continueWith is lazy, likely', async t => {
   const effects = new Map<number, number>();
 
-  Pipe(complete(10))
+  Continuation(complete(10))
     .continueWith(_ => {
       effects.set(0, Date.now());
       return complete('a');
@@ -45,7 +45,7 @@ test('chained continueWith is lazy, likely', async t => {
 test('suceeding map with extend will not trigger the latter', async t => {
   const effects = new Map<number, number>();
 
-  Pipe(complete(10))
+  Continuation(complete(10))
     .map(_ => {
       effects.set(2, Date.now());
       return complete(10);
@@ -65,7 +65,7 @@ test('suceeding map with extend will not trigger the latter', async t => {
 });
 
 test('extracting from a extend-blocked, but otherwise mapped Pipe will unblock it', async t => {
-  const piped = await Pipe(complete(10))
+  const piped = await Continuation(complete(10))
     .map(_ => complete(10))
     .map(_ => fail(12))
     .extend(wa => wa().then(complete('a')))();
@@ -76,7 +76,7 @@ test('extracting from a extend-blocked, but otherwise mapped Pipe will unblock i
 test('suceeding map with continueWith will not trigger the latter, likely', async t => {
   const effects = new Map<number, number>();
 
-  Pipe(complete(10))
+  Continuation(complete(10))
     .map(_ => {
       effects.set(2, Date.now());
       return complete(10);
@@ -96,7 +96,7 @@ test('suceeding map with continueWith will not trigger the latter, likely', asyn
 });
 
 test('extracting from a continueWith-blocked, but otherwise mapped Pipe will unblock it', async t => {
-  const piped = await Pipe(complete(10))
+  const piped = await Continuation(complete(10))
     .map(_ => complete(10))
     .map(_ => fail(12))
     .continueWith(([x]) => complete(x.value + 8))();
@@ -107,7 +107,7 @@ test('extracting from a continueWith-blocked, but otherwise mapped Pipe will unb
 test('succeeding extend with map will trigger the first', async t => {
   const effects = new Map<number, number>();
 
-  Pipe(complete(5))
+  Continuation(complete(5))
     .extend(wa => wa().then(apply(([x]) => complete(x.value + 5))))
     .extend(wa => wa().then(apply(([x]) => complete(x.value + 10))))
     .map(([x]) => {
@@ -129,7 +129,7 @@ test('succeeding extend with map will trigger the first', async t => {
 test('succeeding continueWith with map will trigger the first', async t => {
   const effects = new Map<number, number>();
 
-  Pipe(complete(5))
+  Continuation(complete(5))
     .continueWith(([x]) => complete(x.value + 5))
     .continueWith(([x]) => complete(x.value + 10))
     .map(([x]) => {
