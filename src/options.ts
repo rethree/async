@@ -1,9 +1,9 @@
-import { Completion, Fault, Option, StrMap } from '../@types';
+import { Completion, Failure, Option, StrMap } from '../@types';
 
-export const Faulted = (reason, meta: StrMap = {}): Fault[] => [
+export const Faulted = <a>(reason: a, meta: StrMap = {}): Failure[] => [
   {
     tag: 'faulted',
-    error: reason instanceof Error ? reason : Error(reason),
+    fault: reason,
     meta
   }
 ];
@@ -16,7 +16,7 @@ export const Completed = <a>(value: a, meta: StrMap = {}): Completion<a>[] => [
   }
 ];
 
-export const isFaulted = <a>(x: Option<a>): x is Fault => x.tag === 'faulted';
+export const isFaulted = <a>(x: Option<a>): x is Failure => x.tag === 'faulted';
 
 export const allCompleted = <a>(x: Option<a>[]): x is Completion<a>[] =>
   !x.some(isFaulted);

@@ -1,5 +1,5 @@
 import { test } from 'tap';
-import { complete, fail, allCompleted, Task } from '../src';
+import { allCompleted, complete, fail, Task } from '../src';
 import { expectCompleted, expectFaulted } from './utils';
 
 test('task should be tagged as "Completed" if resolved promise is provided', async t => {
@@ -29,7 +29,7 @@ test('task should be tagged as "Faulted" if rejected promise is provided', async
 test('Faulted task should carry promise rejection reason', async t => {
   const task = await Task(Promise.reject(42))();
 
-  expectFaulted(task, t, ([{ error }]) => t.equal(error.message, '42'));
+  expectFaulted(task, t, ([{ fault }]) => t.equal(fault, 42));
 });
 
 test('Faulted task should carry relevant metadata', async t => {
@@ -53,5 +53,5 @@ test('task.complete creates a task from a promise', async t => {
 test('task.fail creates a task from raw value', async t => {
   const task = await fail(42)();
 
-  expectFaulted(task, t, ([{ error }]) => t.equal(error.message, '42'));
+  expectFaulted(task, t, ([{ fault }]) => t.equal(fault, 42));
 });
