@@ -37,6 +37,15 @@ test('extend carries failures', async t => {
   t.equal(piped[0]['fault'], 12);
 });
 
+test('continueWith carries failures', async t => {
+  const piped = await Pipe(complete(10))
+    .continueWith(_ => fail(12))
+    .continueWith(_ => complete(9001))();
+
+  t.equal(piped.length, 1);
+  t.equal(piped[0]['fault'], 12);
+});
+
 test('map carries completions', async t => {
   const piped = await Pipe(complete(10))
     .map(_ => complete(12))
@@ -55,6 +64,15 @@ test('extend carries completions', async t => {
   t.equal(piped[0]['value'], 9001);
 });
 
+test('continueWith carries completions', async t => {
+  const piped = await Pipe(complete(10))
+    .continueWith(_ => complete(12))
+    .continueWith(_ => complete(9001))();
+
+  t.equal(piped.length, 1);
+  t.equal(piped[0]['value'], 9001);
+});
+
 test('map carries parallel tasks', async t => {
   const piped = await Pipe(complete(10)).map(_ =>
     Parallel(complete(12), fail(10))
@@ -68,6 +86,16 @@ test('map carries parallel tasks', async t => {
 test('extend carries parallel tasks', async t => {
   const piped = await Pipe(complete(10)).extend(wa =>
     wa().then(Parallel(complete(12), fail(10)))
+  )();
+
+  t.equal(piped.length, 2);
+  t.equal(piped[0]['value'], 12);
+  t.equal(piped[1]['fault'], 10);
+});
+
+test('continueWith carries parallel tasks', async t => {
+  const piped = await Pipe(complete(10)).continueWith(_ =>
+    Parallel(complete(12), fail(10))
   )();
 
   t.equal(piped.length, 2);
