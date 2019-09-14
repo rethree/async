@@ -99,7 +99,7 @@ all().then(console.log);
 
 `Task`s themselves do not modify the native promise continuation flow meaning once `then` method of a completed task is entered the world of unsafe possibilities opens again. This is where `Continuation` comonad comes handy as it:
 
-- will return the first faulty set of results to the caller (while ignoring further continuations);
+- will return the first faulty set of results to the caller (while not triggering further continuations);
 - won't expose native `then` method until the last continuation returns;
 - ensures options are used as result types (at `TypeScript` level);
 
