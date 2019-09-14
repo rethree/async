@@ -21,7 +21,7 @@ The very basic types `Task`'s operate on. Represent two possible results - compl
 
 ##### Task
 
-`(Promise | Lazy Promise) a -> Lazy Promise (Completion a | Failure)`
+`(Promise | Lazy Promise) a -> Lazy Promise [ Completion a | Failure ]`
 
 Task constructor accepts both eager and lazy promises. It will return a `thunk`'ed version of the promise regardless of the input type. Lazy ones will not get started until task function returns.
 
@@ -82,7 +82,7 @@ task().then(console.log);
 
 ##### Parallel
 
-`[ Lazy Promise Completion a | Failure ] -> Lazy Promise Completion a | Failure`
+`[ Lazy Promise Completion a | Failure ] -> Lazy Promise [ Completion a | Failure ]`
 
 The 'Parallel' module is a functional wrapper over native `Promise.all` api, _ceteris paribus_. Design approach is similar to that of `Task`, except for that it only accepts lazy promises as input functions. `TypeScript` signature further restricts it to operate on `Option`-returning promises and it is advised to only use built-in `Task` constructors for the input functions. No guarantees in regards to control flow (read - rejections) are given otherwise. This will be optimised once `Promise.allSettled` lands in official runtimes.
 
@@ -99,7 +99,7 @@ all().then(console.log);
 
 `Task`s themselves do not modify the native promise continuation flow meaning once `then` method of a completed task is entered the world of unsafe possibilities opens again. This is where `Continuation` comonad comes handy as it:
 
-- will return the first faulty set of results to the caller (while ignoring further continuations);
+- will return the first faulty set of results to the caller (while not triggering further continuations);
 - won't expose native `then` method until the last continuation returns;
 - ensures options are used as result types (at `TypeScript` level);
 
@@ -132,7 +132,7 @@ Continuation(complete(10))
 
 ...Continuation does also expose (lazy) `extend` method
 
-`extend :: Continuation a => (Continuation a -> Lazy Promise Completion b | Failure) -> Continuation a | b`
+`extend :: Continuation a => (Continuation a -> Lazy Promise [ Completion b | Failure ]) -> Continuation a | b`
 
 ```typescript
 const piped = await Continuation(complete(10))
