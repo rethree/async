@@ -10,10 +10,8 @@ Status](https://david-dm.org/rethree/async/status.svg)](https://david-dm.org/ret
 
 Minimal set of **functional async primitives**.
 
-Inspired by algebraic data types, functional programming principles and some other `TypeScript` libraries (e.g. `fp-ts`). Interfaces designed with purity, laziness, safety and simplicity as their main design factors.
+Inspired by algebraic data types, functional programming principles and some other `TypeScript` libraries (e.g. `fp-ts`), exposes a set of interfaces designed with purity, laziness, safety and simplicity as their main design factors.
 Mostly here to support my incoming `Redux` `REST` client but can definitely be used as a stand-alone utility library.
-
-The following set of utilities is being exposed:
 
 ##### Options
 
