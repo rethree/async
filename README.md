@@ -132,7 +132,7 @@ Continuation(complete(10))
 
 ...Continuation does also expose (lazy) `extend` method
 
-`extend :: Continuation a => (Continuation a -> Lazy Promise Completion b | Failure) => Continuation a | b`
+`extend :: Continuation a => (Continuation a -> Lazy Promise Completion b | Failure) -> Continuation a | b`
 
 ```typescript
 const piped = await Continuation(complete(10))
@@ -146,7 +146,7 @@ console.log(piped);
 
 This is quite verbose, I admit... Without the `apply` helper it would get even longer in addition to having some nasty typings problems. Unless a full control of current calculation context is required `pipe` should be used instead
 
-`pipe :: Continuation a => (Completion a -> Lazy Promise Completion b | Failure) => Continuation a | b`
+`pipe :: Continuation a => (Completion a -> Lazy Promise Completion b | Failure) -> Continuation a | b`
 
 ```typescript
 const piped = await Continuation(complete(10))
