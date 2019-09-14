@@ -103,7 +103,7 @@ all().then(console.log);
 - won't expose native `then` method until the last continuation returns;
 - ensures options are used as result types (at `TypeScript` level);
 
-`map :: Continuation a => (Completion a -> Lazy Promise Completion (a | b) | Failure) => Continuation a | b`
+`map :: Continuation a => (Completion a -> Lazy Promise Completion b | Failure) => Continuation a | b`
 
 ```typescript
 const piped = await Continuation(complete(10))
