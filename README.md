@@ -82,7 +82,7 @@ task().then(console.log);
 
 ##### Parallel
 
-`[ Lazy Promise Completion a | Failure ] -> Lazy Promise Completion a | Failure`
+`[ Lazy Promise Completion a | Failure ] -> Lazy Promise [ Completion a | Failure ]`
 
 The 'Parallel' module is a functional wrapper over native `Promise.all` api, _ceteris paribus_. Design approach is similar to that of `Task`, except for that it only accepts lazy promises as input functions. `TypeScript` signature further restricts it to operate on `Option`-returning promises and it is advised to only use built-in `Task` constructors for the input functions. No guarantees in regards to control flow (read - rejections) are given otherwise. This will be optimised once `Promise.allSettled` lands in official runtimes.
 
