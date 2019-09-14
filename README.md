@@ -95,7 +95,7 @@ all().then(console.log);
 
 ##### Continuation
 
-`Continuation Lazy Promise a -> Continuation Lazy Promise a`
+`Continuation Lazy Promise a -> Continuation Lazy Promise a | b`
 
 `Task`s themselves do not modify the native promise continuation flow meaning once `then` method of a completed task is entered the world of unsafe possibilities opens again. This is where `Continuation` comonad comes handy as it:
 
