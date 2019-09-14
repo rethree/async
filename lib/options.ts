@@ -1,4 +1,4 @@
-import { Completion, Failure, Option, StrMap } from '../@types';
+import { Completion, Failure, Option, StrMap } from './types';
 
 export const Faulted = <a>(reason: a, meta: StrMap = {}): Failure[] => [
   {
