@@ -132,7 +132,7 @@ Continuation(complete(10))
 
 ...Continuation does also expose (lazy) `extend` method
 
-`extend :: Continuation a => (Continuation a -> Lazy Promise Completion b | Failure) -> Continuation a | b`
+`extend :: Continuation a => (Continuation a -> Lazy Promise [ Completion b | Failure ]) -> Continuation a | b`
 
 ```typescript
 const piped = await Continuation(complete(10))
