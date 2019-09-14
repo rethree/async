@@ -21,7 +21,7 @@ The very basic types `Task`'s operate on. Represent two possible results - compl
 
 ##### Task
 
-`(Promise | Lazy Promise) a -> Lazy Promise (Completion a | Failure)`
+`(Promise | Lazy Promise) a -> Lazy Promise [ Completion a | Failure ]`
 
 Task constructor accepts both eager and lazy promises. It will return a `thunk`'ed version of the promise regardless of the input type. Lazy ones will not get started until task function returns.
 
