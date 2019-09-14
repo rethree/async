@@ -15,13 +15,13 @@ Mostly here to support my incoming `Redux` `REST` client but can definitely be u
 
 ##### Options
 
-`Failure | Completion a`
+`Failure | Completed a`
 
 The very basic types `Task`'s operate on. Represent two possible results - completion and failure, forming a tagged union over a `tag` property. Can be created with `Faulted` and `Completed` constructors. Unless manually crafted will always be wrapped in an array to ensure consistent continuation handling.
 
 ##### Task
 
-`(Promise | Lazy Promise) a -> Lazy Promise (Completion a | Failure)`
+`(Thenable | Lazy Promise) a -> Lazy Thenable [ Completed a | Faulted ]`
 
 Task constructor accepts both eager and lazy promises. It will return a `thunk`'ed version of the promise regardless of the input type. Lazy ones will not get started until task function returns.
 
@@ -42,7 +42,7 @@ task().then(console.log);
 // [ { tag: 'completed', value: 42, meta: { args: [] } } ]
 ```
 
-Unlike promises, `Task`'s do not reject. Promise rejections are handled internally and wrapped in `Faulted` option type. This brings some advantages to the table, i.e. purity, branching reduction and unhandled rejections problem trivialisation.
+Unlike promises, `Task`'s do not reject. Rejections are handled internally and wrapped in `Faulted` option type. This brings some advantages to the table, i.e. purity, branching reduction and unhandled rejections problem trivialisation.
 
 ```typescript
 const task = Task(() => Promise.reject(42));
@@ -82,7 +82,7 @@ task().then(console.log);
 
 ##### Parallel
 
-`[ Lazy Promise Completion a | Failure ] -> Lazy Promise Completion a | Failure`
+`[ Lazy Thenable Completed a | Faulted ] -> Lazy Thenable [ Completed a | Faulted ]`
 
 The 'Parallel' module is a functional wrapper over native `Promise.all` api, _ceteris paribus_. Design approach is similar to that of `Task`, except for that it only accepts lazy promises as input functions. `TypeScript` signature further restricts it to operate on `Option`-returning promises and it is advised to only use built-in `Task` constructors for the input functions. No guarantees in regards to control flow (read - rejections) are given otherwise. This will be optimised once `Promise.allSettled` lands in official runtimes.
 
@@ -95,7 +95,7 @@ all().then(console.log);
 
 ##### Continuation
 
-`Continuation Lazy Promise a -> Continuation Lazy Promise a | b`
+`Continuation Task a -> Continuation Task b`
 
 `Task`s themselves do not modify the native promise continuation flow meaning once `then` method of a completed task is entered the world of unsafe possibilities opens again. This is where `Continuation` comonad comes handy as it:
 
@@ -103,7 +103,7 @@ all().then(console.log);
 - won't expose native `then` method until the last continuation returns;
 - ensures options are used as result types (at `TypeScript` level);
 
-`map :: Continuation a => (Completion a -> Lazy Promise Completion b | Failure) => Continuation a | b`
+`map: Completion a -> Lazy Thenable [ Completed a | Faulted ]`
 
 ```typescript
 const piped = await Continuation(complete(10))
@@ -132,8 +132,6 @@ Continuation(complete(10))
 
 ...Continuation does also expose (lazy) `extend` method
 
-`extend :: Continuation a => (Continuation a -> Lazy Promise Completion b | Failure) -> Continuation a | b`
-
 ```typescript
 const piped = await Continuation(complete(10))
   .extend(wa => wa().then(apply(([x]) => Task(Promise.resolve(x.value + 5)))))
@@ -145,8 +143,6 @@ console.log(piped);
 ```
 
 This is quite verbose, I admit... Without the `apply` helper it would get even longer in addition to having some nasty typings problems. Unless a full control of current calculation context is required `pipe` should be used instead
-
-`pipe :: Continuation a => (Completion a -> Lazy Promise Completion b | Failure) -> Continuation a | b`
 
 ```typescript
 const piped = await Continuation(complete(10))
