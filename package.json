@@ -10,7 +10,7 @@
     "dist/**/*"
   ],
   "scripts": {
-    "lint": "eslint -c .eslintrc.js src/**/*.ts",
+    "lint": "eslint -c .eslintrc.js lib/**/*.ts",
     "build": "tsc -p tsconfig.build.json",
     "test": "tap --100 tests/**/*.test.ts",
     "test:dev": "tap --100 tests/**/*.test.ts",
