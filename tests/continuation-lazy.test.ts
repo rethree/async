@@ -1,5 +1,5 @@
 import T from 'tap';
-import { complete, fail, Continuation, apply } from '../src';
+import { complete, fail, Continuation, apply } from '../lib';
 import delay = require('delay');
 
 T.jobs = 8;

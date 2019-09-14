@@ -27,19 +27,19 @@ export type AsyncTask<a> = Promise<Option<a>[]>;
 export type LazyTask<a> = Lazy<AsyncTask<a>>;
 
 export type Functor<a> = {
-  map: <b>(f: (x: a) => b) => Functor<b>;
+  readonly map: <b>(f: (x: a) => b) => Functor<b>;
 };
 
 export type Extract<a> = () => a;
 
 export type ContinuationComonad<a> = {
-  map: <b>(
+  readonly map: <b>(
     f: (ca: Completion<a>[]) => LazyTask<b>
   ) => ContinuationComonad<a | b>;
-  pipe: <b>(
+  readonly pipe: <b>(
     f: (ca: Completion<a>[]) => LazyTask<b>
   ) => ContinuationComonad<a | b>;
-  extend: <b>(
+  readonly extend: <b>(
     f: (wa: ContinuationComonad<a>) => AsyncTask<b>
   ) => ContinuationComonad<b>;
 } & Extract<AsyncTask<a>>;

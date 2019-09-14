@@ -1,6 +1,6 @@
 import { test } from 'tap';
-import { Faulted, isFaulted, Completed, allCompleted } from '../src';
-import { Option } from '../@types';
+import { Faulted, isFaulted, Completed, allCompleted } from '../lib';
+import { Option } from '../lib/types';
 
 test('isFaulted detects faulted variant', async t => {
   const fault = Faulted(Error('42'));

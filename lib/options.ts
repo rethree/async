@@ -1,14 +1,22 @@
-import { ofType, unionize, UnionOf } from 'unionize';
-import { StrMap, _ } from './types';
+import { Completion, Failure, Option, StrMap } from './types';
 
-export type Option = UnionOf<typeof Options>;
+export const Faulted = <a>(reason: a, meta: StrMap = {}): Failure[] => [
+  {
+    tag: 'faulted',
+    fault: reason,
+    meta
+  }
+];
 
-export const Options = unionize({
-  Completed: ofType<[{ value: _; meta?: StrMap }]>(),
-  Faulted: ofType<[{ reason: _; meta?: StrMap }]>()
-});
+export const Completed = <a>(value: a, meta: StrMap = {}): Completion<a>[] => [
+  {
+    tag: 'completed',
+    value,
+    meta
+  }
+];
 
-export const isFaulted = <a>(x: Option): x is Failure => x.tag === 'faulted';
+export const isFaulted = <a>(x: Option<a>): x is Failure => x.tag === 'faulted';
 
 export const allCompleted = <a>(x: Option<a>[]): x is Completion<a>[] =>
   !x.some(isFaulted);

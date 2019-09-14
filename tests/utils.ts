@@ -1,5 +1,5 @@
-import { Completion, Failure, Option } from '../@types';
-import { allCompleted, isFaulted } from '../src';
+import { Completion, Failure, Option } from '../lib/types';
+import { allCompleted, isFaulted } from '../lib';
 
 export const expectFaulted = <a>(
   task: Option<a>[],

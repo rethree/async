@@ -1,5 +1,5 @@
 import { test } from 'tap';
-import { apply, complete, fail, Parallel, Continuation, Task } from '../src';
+import { apply, complete, fail, Parallel, Continuation, Task } from '../lib';
 
 test('map is eager', async t => {
   const effects: number[] = [];

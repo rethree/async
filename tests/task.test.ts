@@ -1,5 +1,5 @@
 import { test } from 'tap';
-import { allCompleted, complete, fail, Task } from '../src';
+import { allCompleted, complete, fail, Task } from '../lib';
 import { expectCompleted, expectFaulted } from './utils';
 
 test('task should be tagged as "Completed" if resolved promise is provided', async t => {

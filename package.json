@@ -1,15 +1,16 @@
 {
-  "name": "@recubed/tasks",
+  "name": "@recubed/async",
   "version": "0.0.1",
   "description": "Functional async primitives",
   "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "author": "tanfonto <tanfonto@pm.me>",
   "license": "MIT",
   "files": [
     "dist/**/*"
   ],
   "scripts": {
-    "lint": "eslint -c .eslintrc.js src/**/*.ts",
+    "lint": "eslint -c .eslintrc.js lib/**/*.ts",
     "build": "tsc -p tsconfig.build.json",
     "test": "tap --100 tests/**/*.test.ts",
     "test:dev": "tap --100 tests/**/*.test.ts",

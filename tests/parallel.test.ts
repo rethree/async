@@ -1,5 +1,5 @@
 import { test } from 'tap';
-import { complete, fail, isFaulted, Parallel } from '../src';
+import { complete, fail, isFaulted, Parallel } from '../lib';
 import { expectCompleted, expectFaulted } from './utils';
 
 test('the amount of results returned is equal to the amount of tasks provided', async t => {

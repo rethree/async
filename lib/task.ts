@@ -1,4 +1,4 @@
-import { LazyTask, Option } from '../@types';
+import { LazyTask, Option } from './types';
 import { Completed, Faulted } from './options';
 
 export const Task = <a, bs extends any[]>(
@@ -6,7 +6,9 @@ export const Task = <a, bs extends any[]>(
   ...args: bs
 ): LazyTask<a> => () => {
   const promise = x instanceof Promise ? x : x(...args);
-  return promise.then(x => Completed(x, { args })).catch(x => Faulted(x, { args }));
+  return promise
+    .then(x => Completed(x, { args }))
+    .catch(x => Faulted(x, { args }));
 };
 
 export const complete = <a>(x: a | Promise<a>): LazyTask<a> =>
