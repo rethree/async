@@ -9,6 +9,9 @@
   "files": [
     "dist/**/*"
   ],
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "lint": "eslint -c .eslintrc.js lib/**/*.ts",
     "build": "tsc -p tsconfig.build.json",
