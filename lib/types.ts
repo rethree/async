@@ -44,5 +44,4 @@ export type ContinuationComonad<a> = {
   readonly extend: <b>(
     f: (wa: ContinuationComonad<a>) => AsyncTask<b>
   ) => ContinuationComonad<b>;
-} & Functor<a> &
-  AsyncTask<a>;
+} & Functor<a> & AsyncTask<a>;
