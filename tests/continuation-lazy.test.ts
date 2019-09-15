@@ -147,3 +147,23 @@ test('succeeding pipe with map will trigger the first', async t => {
   t.equal(effects.get(1), 30);
   t.equal(effects.get(0), 42);
 });
+
+test('succeeding extend with map retains order', async t => {
+  const piped = await Continuation(complete([]))
+    .extend(wa => wa().then(apply(([x]) => complete([...x.value, 0]))))
+    .extend(wa => wa().then(apply(([x]) => complete([...x.value, 1]))))
+    .map(([x]) => complete([...x.value, 2]))
+    .map(([x]) => complete([...x.value, 3]))();
+
+  t.same(piped[0]['value'], [0, 1, 2, 3]);
+});
+
+test('succeeding pipe with map retains order', async t => {
+  const piped = await Continuation(complete([]))
+    .pipe(([x]) => complete([...x.value, 0]))
+    .pipe(([x]) => complete([...x.value, 1]))
+    .map(([x]) => complete([...x.value, 2]))
+    .map(([x]) => complete([...x.value, 3]))();
+
+  t.same(piped[0]['value'], [0, 1, 2, 3]);
+});
