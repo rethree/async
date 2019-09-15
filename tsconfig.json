@@ -2,7 +2,7 @@
   "compilerOptions": {
     "target": "es6",
     "module": "commonjs",
-    "lib": ["esnext", "dom", "dom.iterable", "es2019"],
+    "lib": ["dom", "es2019"],
     "allowJs": false,
     "outDir": "./dist",
     "declaration": true,

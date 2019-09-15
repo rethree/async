@@ -1,6 +1,6 @@
 {
   "name": "@recubed/async",
-  "version": "0.0.2",
+  "version": "0.0.7",
   "description": "Functional async primitives",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -30,6 +30,6 @@
     "range": "^0.0.3",
     "tap": "^14.6.1",
     "ts-node": "^8.3.0",
-    "typescript": "^3.5.2"
+    "typescript": "3.6"
   }
 }
