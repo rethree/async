@@ -1,3 +1,5 @@
+export const TypeRep = Symbol('@@TASK');
+
 export type _ = unknown;
 
 export type StrMap<a = any> = {
@@ -22,24 +24,25 @@ export type Completion<a> = Meta & {
 
 export type Option<a> = Failure | Completion<a>;
 
-export type AsyncTask<a> = PromiseLike<Option<a>[]>;
+export type Thenable<a> = Lazy<PromiseLike<Option<a>[]>>;
 
-export type LazyTask<a> = Lazy<AsyncTask<a>>;
+export type AsyncTask<a> = Thenable<a> & {
+  [TypeRep];
+};
 
 export type Functor<a> = {
   readonly map: <b>(f: (x: a) => b) => Functor<b>;
 };
 
-export type Extract<a> = () => a;
-
 export type ContinuationComonad<a> = {
   readonly map: <b>(
-    f: (ca: Completion<a>[]) => LazyTask<b>
+    f: (ca: Completion<a>[]) => AsyncTask<b>
   ) => ContinuationComonad<a | b>;
   readonly pipe: <b>(
-    f: (ca: Completion<a>[]) => LazyTask<b>
+    f: (ca: Completion<a>[]) => AsyncTask<b>
   ) => ContinuationComonad<a | b>;
   readonly extend: <b>(
     f: (wa: ContinuationComonad<a>) => AsyncTask<b>
   ) => ContinuationComonad<b>;
-} & Extract<AsyncTask<a>>;
+} & Functor<a> &
+  AsyncTask<a>;

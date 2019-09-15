@@ -10,14 +10,14 @@ Status](https://david-dm.org/rethree/async/status.svg)](https://david-dm.org/ret
 
 Minimal set of **functional async primitives**.
 
-Inspired by algebraic data types, functional programming principles and some other `TypeScript` libraries (e.g. `fp-ts`), exposes a set of interfaces designed with purity, laziness, safety and simplicity as their main design factors.
+A set of functional utilities designed with purity, laziness, safety and simplicity in mind.
 Mostly here to support my incoming `Redux` `REST` client but can definitely be used as a stand-alone utility library.
 
-##### Options
+##### Option
 
 `Failure | Completed a`
 
-The very basic types `Task`'s operate on. Represent two possible results - completion and failure, forming a tagged union over a `tag` property. Can be created with `Faulted` and `Completed` constructors. Unless manually crafted will always be wrapped in an array to ensure consistent continuation handling.
+The very basic type `Task`'s operate on. Represents two possible results - completion and failure, forming a tagged union over a `tag` property. Can be created with `Faulted` and `Completed` constructors. Unless manually crafted will always be wrapped in an array to ensure consistent continuation handling.
 
 ##### Task
 
@@ -28,6 +28,7 @@ Task constructor accepts both eager and lazy promises. It will return a `thunk`'
 ```typescript
 // Creation
 const task = Task(Promise.resolve(42));
+
 // or
 const task = Task(() => Promise.resolve(42));
 // or
@@ -50,7 +51,7 @@ task().then(console.log);
 // [ { tag: 'faulted', fault: 42, meta: { args: [] } } ]
 ```
 
-Lazy tasks may optionally accept parameters. They will be returned within the result object, under `meta.args`. This may turn out useful in distributed context where promises are passed around and it is not immediately obvious what the failure reason was for the consuming code. Think of complex effectful procedures, i.e. `Redux-Saga` fetching `REST` resources.
+Lazy tasks may optionally accept parameters. These will be returned within the result object, under `meta.args`. May turn out useful in distributed context where promises are passed around and it is not immediately obvious what the failure reason was for the consuming code. Think of complex effectful procedures, i.e. `Redux-Saga` fetching `REST` resources.
 
 ```typescript
 const task = Task(
@@ -84,7 +85,7 @@ task().then(console.log);
 
 `[ Lazy Thenable Completed a | Faulted ] -> Lazy Thenable [ Completed a | Faulted ]`
 
-The 'Parallel' module is a functional wrapper over native `Promise.all` api, _ceteris paribus_. Design approach is similar to that of `Task`, except for that it only accepts lazy promises as input functions. `TypeScript` signature further restricts it to operate on `Option`-returning promises and it is advised to only use built-in `Task` constructors for the input functions. No guarantees in regards to control flow (read - rejections) are given otherwise. This will be optimised once `Promise.allSettled` lands in official runtimes.
+The 'Parallel' module is a functional wrapper over native `Promise.all` api, _ceteris paribus_. Design approach is similar to that of `Task`, except that it only accepts `tasks` as input parameters. `TypeScript` signature further restricts it to operate on `thunk`-ed, `Option`-returning promises marked with `TypeRep` symbol. It is advised to only use built-in `Task` constructors for the input functions. No guarantees in regards to control flow (read - rejections) are given otherwise. This will be optimised once `Promise.allSettled` lands in official runtimes.
 
 ```typescript
 const all = Parallel(complete(42), fail(9001));
@@ -142,13 +143,25 @@ console.log(piped);
 // [ { tag: 'completed', value: 42, meta: { args: [] } } ]
 ```
 
-This is quite verbose, I admit... Without the `apply` helper it would get even longer in addition to having some nasty typings problems. Unless a full control of current calculation context is required `pipe` should be used instead
+This is quite verbose, I admit... Without the `apply` helper it would get even longer in addition to having some nasty typings problems. Unless a full control of current calculation context is required `pipe` should be used instead...
 
 ```typescript
 const piped = await Continuation(complete(10))
-  .pipe(([x]) => complete(x.value + 6))
+  .extend(pipe(([x]) => Task(Promise.resolve(x.value + 6))))
+  .extend(pipe(([x]) => Task(Promise.resolve(x.value + 5))))
+  .extend(pipe(([x]) => Task(Promise.resolve(x.value * 2))))();
+
+console.log(piped);
+// 42
+```
+
+...for convenience `pipe` is also exposed as a `continuation` object method
+
+```typescript
+const piped = await Continuation(complete(10))
+  .pipe(([x]) => Task(Promise.resolve(x.value + 6)))
   .pipe(([x]) => Task(Promise.resolve(x.value + 5)))
-  .pipe(([x]) => complete(x.value * 2))();
+  .pipe(([x]) => Task(Promise.resolve(x.value * 2)))();
 
 console.log(piped);
 // 42

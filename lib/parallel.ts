@@ -1,4 +1,5 @@
-import { LazyTask } from './types';
+import { AsyncTask } from './types';
+import { task } from './task';
 
-export const Parallel = <a>(...tasks: LazyTask<a>[]): LazyTask<a> => () =>
-  Promise.all(tasks.map(lazy => lazy())).then(x => x.flat());
+export const Parallel = <a>(...tasks: AsyncTask<a>[]): AsyncTask<a> =>
+  task(() => Promise.all(tasks.map(lazy => lazy())).then(x => x.flat()));
