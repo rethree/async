@@ -1,5 +1,5 @@
 import T from 'tap';
-import { complete, fail, Continuation, apply } from '../lib';
+import { complete, Continuation, fail, pipe, task } from '../lib';
 import delay = require('delay');
 
 T.jobs = 8;
@@ -10,14 +10,18 @@ test('chained extend is lazy, likely', async t => {
   const effects = new Map<number, number>();
 
   Continuation(complete(10))
-    .extend(wa => {
-      effects.set(0, Date.now());
-      return wa().then(complete('a'));
-    })
-    .extend(wb => {
-      effects.set(1, Date.now());
-      return wb().then(fail(12));
-    });
+    .extend(wa =>
+      task(() => {
+        effects.set(0, Date.now());
+        return wa().then(complete('a'));
+      })
+    )
+    .extend(wb =>
+      task(() => {
+        effects.set(1, Date.now());
+        return wb().then(fail(12));
+      })
+    );
 
   await delay(1000);
 
@@ -54,10 +58,12 @@ test('suceeding map with extend will not trigger the latter', async t => {
       effects.set(1, Date.now());
       return complete(12);
     })
-    .extend(wa => {
-      effects.set(0, Date.now());
-      return wa().then(complete('a'));
-    });
+    .extend(wa =>
+      task(() => {
+        effects.set(0, Date.now());
+        return wa().then(complete('a'));
+      })
+    );
 
   await delay(1000);
 
@@ -68,7 +74,7 @@ test('extracting from a extend-blocked, but otherwise mapped Pipe will unblock i
   const piped = await Continuation(complete(10))
     .map(_ => complete(10))
     .map(_ => fail(12))
-    .extend(wa => wa().then(complete('a')))();
+    .extend(wa => task(() => wa().then(complete('a'))))();
 
   t.equal(piped[0]['fault'], 12);
 });
@@ -108,8 +114,8 @@ test('succeeding extend with map will trigger the first', async t => {
   const effects = new Map<number, number>();
 
   Continuation(complete(5))
-    .extend(wa => wa().then(apply(([x]) => complete(x.value + 5))))
-    .extend(wa => wa().then(apply(([x]) => complete(x.value + 10))))
+    .extend(pipe(([x]) => complete(x.value + 5)))
+    .extend(pipe(([x]) => complete(x.value + 10)))
     .map(([x]) => {
       effects.set(1, x.value + 10);
       return complete(x.value + 10);
@@ -149,9 +155,9 @@ test('succeeding pipe with map will trigger the first', async t => {
 });
 
 test('succeeding extend with map retains order', async t => {
-  const piped = await Continuation(complete([]))
-    .extend(wa => wa().then(apply(([x]) => complete([...x.value, 0]))))
-    .extend(wa => wa().then(apply(([x]) => complete([...x.value, 1]))))
+  const piped = await Continuation(complete<number[]>([]))
+    .extend(pipe(([x]) => complete([...x.value, 0])))
+    .extend(pipe(([x]) => complete([...x.value, 1])))
     .map(([x]) => complete([...x.value, 2]))
     .map(([x]) => complete([...x.value, 3]))();
 

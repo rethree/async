@@ -1,5 +1,13 @@
 import { test } from 'tap';
-import { apply, complete, fail, Parallel, Continuation, Task } from '../lib';
+import {
+  complete,
+  fail,
+  Parallel,
+  Continuation,
+  Task,
+  task,
+  pipe
+} from '../lib';
 
 test('map is eager', async t => {
   const effects: number[] = [];
@@ -30,8 +38,10 @@ test('map carries failures', async t => {
 
 test('extend carries failures', async t => {
   const piped = await Continuation(complete(10))
-    .extend(wa => wa().then(fail(12)))
-    .extend(wb => wb().then(complete(9001)))();
+    .extend(wa => task(() => wa().then(fail(12))))
+    .extend(wb => task(() => wb().then(complete(9001))))();
+
+  console.log(piped);
 
   t.equal(piped.length, 1);
   t.equal(piped[0]['fault'], 12);
@@ -57,8 +67,8 @@ test('map carries completions', async t => {
 
 test('extend carries completions', async t => {
   const piped = await Continuation(complete(10))
-    .extend(wa => wa().then(complete(12)))
-    .extend(wb => wb().then(complete(9001)))();
+    .extend(wa => task(() => wa().then(complete(12))))
+    .extend(wb => task(() => wb().then(complete(9001))))();
 
   t.equal(piped.length, 1);
   t.equal(piped[0]['value'], 9001);
@@ -85,7 +95,7 @@ test('map carries parallel tasks', async t => {
 
 test('extend carries parallel tasks', async t => {
   const piped = await Continuation(complete(10)).extend(wa =>
-    wa().then(Parallel(complete(12), fail(10)))
+    task(() => wa().then(Parallel(complete(12), fail(10))))
   )();
 
   t.equal(piped.length, 2);
@@ -115,9 +125,9 @@ test('mapped results are transformed according to morphism provided', async t =>
 
 test('extended results are transformed according to morphism provided', async t => {
   const piped = await Continuation(complete(10))
-    .extend(wa => wa().then(apply(([x]) => Task(Promise.resolve(x.value + 5)))))
-    .extend(wa => wa().then(apply(([x]) => Task(Promise.resolve(x.value + 6)))))
-    .extend(wa => wa().then(apply(([x]) => complete(x.value * 2))))();
+    .extend(pipe(([x]) => Task(Promise.resolve(x.value + 5))))
+    .extend(pipe(([x]) => Task(Promise.resolve(x.value + 6))))
+    .extend(pipe(([x]) => complete(x.value * 2)))();
 
   t.equal(piped.length, 1);
   t.equal(piped[0]['value'], 42);
