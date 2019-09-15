@@ -22,7 +22,7 @@ export type Completion<a> = Meta & {
 
 export type Option<a> = Failure | Completion<a>;
 
-export type AsyncTask<a> = Promise<Option<a>[]>;
+export type AsyncTask<a> = PromiseLike<Option<a>[]>;
 
 export type LazyTask<a> = Lazy<AsyncTask<a>>;
 
