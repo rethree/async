@@ -1,30 +1,40 @@
+import { allCompleted } from './options';
+import { task, from } from './task';
 import {
+  AsyncTask,
   Completion,
   ContinuationComonad,
   Failure,
-  LazyTask,
   Option
 } from './types';
-import { allCompleted } from './options';
-import { from } from './task';
 
-export const apply = <a, b>(f: (x: Completion<a>[]) => LazyTask<b>) => (
+export const apply = <a, b>(f: (x: Completion<a>[]) => AsyncTask<b>) => (
   results: Option<a>[]
 ): Failure[] | Completion<b>[] =>
   (allCompleted(results) ? f(results)() : results) as any;
 
-export const Continuation = <a>(x: LazyTask<a>): ContinuationComonad<a> => {
-  const me: Pick<ContinuationComonad<a>, 'map' | 'extend' | 'pipe'> = {
-    extend: f =>
-      Continuation(() =>
-        x().then(a => (allCompleted(a) ? f(Continuation(from(a))) : a) as any)
-      ),
-    pipe: f => me.extend(wa => wa().then(apply(f))),
-    map: f => {
-      const ran = x().then(apply(f));
-      return Continuation(() => ran);
-    }
-  };
+export const pipe = <a, b>(f: (wa: Completion<a>[]) => AsyncTask<b>) => (
+  wa: ContinuationComonad<a>
+) => {
+  return task(() => wa().then(apply(f)));
+};
 
-  return Object.assign(() => x(), me);
+export const Continuation = <a>(x: AsyncTask<a>): ContinuationComonad<a> => {
+  const me = Object.assign(x, {
+    extend: f =>
+      Continuation(
+        task(() =>
+          x().then(
+            a => (allCompleted(a) ? f(Continuation(from(a)))() : a) as any
+          )
+        )
+      ),
+    pipe: f => me.extend(pipe(f)),
+    map: f => {
+      const thenable = x().then(apply(f));
+      return Continuation(task(() => thenable));
+    }
+  } as Pick<ContinuationComonad<a>, 'extend' | 'pipe' | 'map'>);
+
+  return me;
 };
