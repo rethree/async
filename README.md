@@ -21,7 +21,7 @@ The very basic types `Task`'s operate on. Represent two possible results - compl
 
 ##### Task
 
-`(Promise | Lazy Promise) a -> Lazy Promise [ Completed a | Faulted ]`
+`(Thenable | Lazy Promise) a -> Lazy Thenable [ Completed a | Faulted ]`
 
 Task constructor accepts both eager and lazy promises. It will return a `thunk`'ed version of the promise regardless of the input type. Lazy ones will not get started until task function returns.
 
@@ -42,7 +42,7 @@ task().then(console.log);
 // [ { tag: 'completed', value: 42, meta: { args: [] } } ]
 ```
 
-Unlike promises, `Task`'s do not reject. Promise rejections are handled internally and wrapped in `Faulted` option type. This brings some advantages to the table, i.e. purity, branching reduction and unhandled rejections problem trivialisation.
+Unlike promises, `Task`'s do not reject. Rejections are handled internally and wrapped in `Faulted` option type. This brings some advantages to the table, i.e. purity, branching reduction and unhandled rejections problem trivialisation.
 
 ```typescript
 const task = Task(() => Promise.reject(42));
@@ -82,7 +82,7 @@ task().then(console.log);
 
 ##### Parallel
 
-`[ Lazy Promise Completed a | Faulted ] -> Lazy Promise [ Completed a | Faulted ]`
+`[ Lazy Thenable Completed a | Faulted ] -> Lazy Thenable [ Completed a | Faulted ]`
 
 The 'Parallel' module is a functional wrapper over native `Promise.all` api, _ceteris paribus_. Design approach is similar to that of `Task`, except for that it only accepts lazy promises as input functions. `TypeScript` signature further restricts it to operate on `Option`-returning promises and it is advised to only use built-in `Task` constructors for the input functions. No guarantees in regards to control flow (read - rejections) are given otherwise. This will be optimised once `Promise.allSettled` lands in official runtimes.
 
@@ -95,7 +95,7 @@ all().then(console.log);
 
 ##### Continuation
 
-`Continuation Lazy Promise a -> Continuation Lazy Promise b`
+`Continuation Task a -> Continuation Task b`
 
 `Task`s themselves do not modify the native promise continuation flow meaning once `then` method of a completed task is entered the world of unsafe possibilities opens again. This is where `Continuation` comonad comes handy as it:
 
@@ -103,7 +103,7 @@ all().then(console.log);
 - won't expose native `then` method until the last continuation returns;
 - ensures options are used as result types (at `TypeScript` level);
 
-`map: Completion a -> Lazy Promise [ Completed a | Faulted ]`
+`map: Completion a -> Lazy Thenable [ Completed a | Faulted ]`
 
 ```typescript
 const piped = await Continuation(complete(10))
