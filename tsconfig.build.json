@@ -19,5 +19,5 @@
     "diagnostics": true,
     "sourceMap": true
   },
-  "include": ["lib"]
+  "include": ["lib"] 
 }

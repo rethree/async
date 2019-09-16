@@ -1,9 +1,9 @@
 {
   "name": "@recubed/async",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "Functional async primitives",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "index.js",
+  "types": "index.d.ts",
   "author": "tanfonto <tanfonto@pm.me>",
   "license": "MIT",
   "files": [
@@ -18,6 +18,7 @@
     "test": "tap --100 tests/**/*.test.ts",
     "test:dev": "tap --100 tests/**/*.test.ts",
     "posttest": "tap --coverage-report=text-lcov | coveralls",
+    "postbuild": "cp package.json README.md dist/",
     "ct": "tap --watch --changed --100"
   },
   "devDependencies": {
