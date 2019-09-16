@@ -24,9 +24,11 @@ export type Completion<a> = Meta & {
 
 export type Option<a> = Failure | Completion<a>;
 
-export type Thenable<a> = Lazy<PromiseLike<Option<a>[]>>;
+export type Thenable<a, bs extends any[] = any[]> = (
+  ...args: bs
+) => PromiseLike<Option<a>[]>;
 
-export type AsyncTask<a> = Thenable<a> & {
+export type AsyncTask<a, bs extends any[] = any[]> = Thenable<a, bs> & {
   [TypeRep];
 };
 

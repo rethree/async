@@ -15,7 +15,7 @@ test('Succesful task should carry promise resolution value', async t => {
 });
 
 test('Succesful task should carry relevant metadata', async t => {
-  const task = await Task(x => Promise.resolve(x), 42)();
+  const task = await Task(x => Promise.resolve(x))(42);
 
   expectCompleted(task, t, ([{ meta }]) => t.same(meta, { args: [42] }));
 });
@@ -33,7 +33,7 @@ test('Faulted task should carry promise rejection reason', async t => {
 });
 
 test('Faulted task should carry relevant metadata', async t => {
-  const task = await Task(x => Promise.reject(x), 42)();
+  const task = await Task(x => Promise.reject(x))(42);
 
   expectFaulted(task, t, ([{ meta }]) => t.same(meta, { args: [42] }));
 });

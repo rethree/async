@@ -51,11 +51,10 @@ task().then(console.log);
 // [ { tag: 'faulted', fault: 42, meta: { args: [] } } ]
 ```
 
-Lazy tasks may optionally accept parameters. These will be returned within the result object, under `meta.args`. May turn out useful in distributed context where promises are passed around and it is not immediately obvious what the failure reason was for the consuming code. Think of complex effectful procedures, i.e. `Redux-Saga` fetching `REST` resources.
+Lazy tasks may optionally accept arguments. These will be returned within the result object, under `meta.args`. May turn out useful in distributed context where promises are passed around and it is not immediately obvious what the failure reason was for the consuming code. Think of complex effectful procedures, i.e. `Redux-Saga` fetching `REST` resources.
 
 ```typescript
-const task = Task(
-  url => fetch(url).then(resp => resp.json()),
+const task = Task(url => fetch(url).then(resp => resp.json()))(
   'https://non.existent'
 );
 task().then(([fault]) => console.log(fault.meta.args));
