@@ -1,18 +1,19 @@
 import { AsyncTask, Option, TypeRep, Thenable } from './types';
 import { Completed, Faulted } from './options';
 
-export const task = <a>(task: Thenable<a>): AsyncTask<a> =>
-  Object.defineProperty(() => task(), TypeRep, {
+export const task = <a, bs extends any[] = any[]>(
+  task: Thenable<a, bs>
+): AsyncTask<a, bs> =>
+  Object.defineProperty((...args: bs) => task(...args), TypeRep, {
     writable: false,
     configurable: false,
     enumerable: false
   });
 
 export const Task = <a, bs extends any[]>(
-  x: Promise<a> | ((...args: bs) => Promise<a>),
-  ...args: bs
+  x: Promise<a> | ((...args: bs) => Promise<a>)
 ): AsyncTask<a> =>
-  task(() => {
+  task((...args: bs) => {
     const thenable = x instanceof Promise ? x : x(...args);
     return thenable
       .then(x => Completed(x, { args }))
