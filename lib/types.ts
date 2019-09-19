@@ -22,11 +22,9 @@ export type Completion<a> = Meta & {
 
 export type Option<a> = Failure | Completion<a>;
 
-export type Thenable<a, bs extends any[] = any[]> = (
+export type AsyncTask<a, bs extends any[] = any[]> = (
   ...args: bs
 ) => PromiseLike<Option<a>[]>;
-
-export type AsyncTask<a, bs extends any[] = any[]> = Thenable<a, bs>;
 
 export type Functor<a> = {
   readonly map: <b>(f: (x: a) => b) => Functor<b>;
