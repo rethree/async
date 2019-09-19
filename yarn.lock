@@ -97,13 +97,6 @@
     lodash "^4.17.13"
     to-fast-properties "^2.0.0"
 
-"@types/delay@^3.1.0":
-  version "3.1.0"
-  resolved "https://registry.yarnpkg.com/@types/delay/-/delay-3.1.0.tgz#c7ff788bf0d9b85f923b12182e6fbfaa65edcbdb"
-  integrity sha512-Mt16D+JxuzA2iu5VTnGS1ziGoaSAD2SZJF4Os3rxUnMk7sBSOkdH43yxoZVxSEud6t1V1JScFBaZA8r6ByjYMw==
-  dependencies:
-    delay "*"
-
 "@types/eslint-visitor-keys@^1.0.0":
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/@types/eslint-visitor-keys/-/eslint-visitor-keys-1.0.0.tgz#1ee30d79544ca84d68d4b3cdb0af4f205663dd2d"
@@ -808,7 +801,7 @@ default-require-extensions@^2.0.0:
   dependencies:
     strip-bom "^3.0.0"
 
-delay@*, delay@^4.3.0:
+delay@^4.3.0:
   version "4.3.0"
   resolved "https://registry.yarnpkg.com/delay/-/delay-4.3.0.tgz#efeebfb8f545579cb396b3a722443ec96d14c50e"
   integrity sha512-Lwaf3zVFDMBop1yDuFZ19F9WyGcZcGacsbdlZtWjQmM50tOcMntm1njF/Nb/Vjij3KaSvCF+sEYGKrrjObu2NA==
@@ -2763,6 +2756,11 @@ unicode-length@^2.0.1:
   dependencies:
     punycode "^2.0.0"
     strip-ansi "^3.0.1"
+
+unionize@^3.0.2:
+  version "3.0.2"
+  resolved "https://registry.yarnpkg.com/unionize/-/unionize-3.0.2.tgz#b01c932268cc07f846aba5e675c1ec746084c013"
+  integrity sha512-sLc/42zpKCqJ3YAGmap6k8axrnnLwiDN+Nb5s1jz0LgR3Jz/n0X2C8RBVflpFt/V6h/BzqaCM2hZSFoieXX/VA==
 
 uri-js@^4.2.2:
   version "4.2.2"

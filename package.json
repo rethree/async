@@ -21,7 +21,6 @@
     "ct": "tap --watch --changed --100"
   },
   "devDependencies": {
-    "@types/delay": "^3.1.0",
     "@typescript-eslint/eslint-plugin": "^2.0.0",
     "@typescript-eslint/parser": "^2.0.0",
     "coveralls": "^3.0.6",
@@ -31,5 +30,8 @@
     "tap": "^14.6.1",
     "ts-node": "^8.3.0",
     "typescript": "3.6"
+  },
+  "peerDependencies": {
+    "unionize": "^3.0.2"
   }
 }
