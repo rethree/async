@@ -1,5 +1,5 @@
 import { allCompleted } from './options';
-import { task, from } from './task';
+import { from } from './task';
 import {
   AsyncTask,
   Completion,
@@ -16,23 +16,19 @@ export const apply = <a, b>(f: (x: Completion<a>[]) => AsyncTask<b>) => (
 export const pipe = <a, b>(f: (wa: Completion<a>[]) => AsyncTask<b>) => (
   wa: ContinuationComonad<a>
 ) => {
-  return task(() => wa().then(apply(f)));
+  return () => wa().then(apply(f));
 };
 
 export const Continuation = <a>(x: AsyncTask<a>): ContinuationComonad<a> => {
   const me = Object.assign(x, {
     extend: f =>
-      Continuation(
-        task(() =>
-          x().then(
-            a => (allCompleted(a) ? f(Continuation(from(a)))() : a) as any
-          )
-        )
+      Continuation(() =>
+        x().then(a => (allCompleted(a) ? f(Continuation(from(a)))() : a) as any)
       ),
     pipe: f => me.extend(pipe(f)),
     map: f => {
       const thenable = x().then(apply(f));
-      return Continuation(task(() => thenable));
+      return Continuation(() => thenable);
     }
   } as Pick<ContinuationComonad<a>, 'extend' | 'pipe' | 'map'>);
 

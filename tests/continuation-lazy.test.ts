@@ -1,5 +1,5 @@
 import T from 'tap';
-import { complete, Continuation, fail, pipe, task } from '../lib';
+import { complete, Continuation, fail, pipe } from '../lib';
 import delay = require('delay');
 
 T.jobs = 8;
@@ -10,18 +10,14 @@ test('chained extend is lazy, likely', async t => {
   const effects = new Map<number, number>();
 
   Continuation(complete(10))
-    .extend(wa =>
-      task(() => {
-        effects.set(0, Date.now());
-        return wa().then(complete('a'));
-      })
-    )
-    .extend(wb =>
-      task(() => {
-        effects.set(1, Date.now());
-        return wb().then(fail(12));
-      })
-    );
+    .extend(wa => () => {
+      effects.set(0, Date.now());
+      return wa().then(complete('a'));
+    })
+    .extend(wb => () => {
+      effects.set(1, Date.now());
+      return wb().then(fail(12));
+    });
 
   await delay(1000);
 
@@ -58,12 +54,10 @@ test('suceeding map with extend will not trigger the latter', async t => {
       effects.set(1, Date.now());
       return complete(12);
     })
-    .extend(wa =>
-      task(() => {
-        effects.set(0, Date.now());
-        return wa().then(complete('a'));
-      })
-    );
+    .extend(wa => () => {
+      effects.set(0, Date.now());
+      return wa().then(complete('a'));
+    });
 
   await delay(1000);
 
@@ -74,7 +68,7 @@ test('extracting from a extend-blocked, but otherwise mapped Pipe will unblock i
   const piped = await Continuation(complete(10))
     .map(_ => complete(10))
     .map(_ => fail(12))
-    .extend(wa => task(() => wa().then(complete('a'))))();
+    .extend(wa => () => wa().then(complete('a')))();
 
   t.equal(piped[0]['fault'], 12);
 });

@@ -43,7 +43,7 @@ task().then(console.log);
 // [ { tag: 'completed', value: 42, meta: { args: [] } } ]
 ```
 
-Unlike promises, `Task`'s do not reject. Rejections are handled internally and wrapped in `Faulted` option. This brings some advantages to the table, i.e. purity, branching reduction and unhandled rejections problem trivialisation.
+Unlike promises, `Task`s do not reject. Rejections are handled internally and wrapped in `Faulted` option. This brings some advantages to the table, i.e. purity, branching reduction and unhandled rejections problem trivialisation.
 
 ```typescript
 const task = Task(() => Promise.reject(42));
@@ -84,7 +84,7 @@ task().then(console.log);
 
 `[ Lazy Thenable Completed a | Faulted ] -> Lazy Thenable [ Completed a | Faulted ]`
 
-The 'Parallel' module is a functional wrapper over native `Promise.all` api, _ceteris paribus_. Design approach is similar to that of `Task`, except that it only accepts `Task`s as input parameters. `TypeScript` signature restricts it to operate on `thunk`-ed, `Option`-returning promises marked with `TypeRep` symbol. It is advised to only use built-in `Task` constructors for the input functions. No guarantees in regards to control flow (read - rejections) are given otherwise. This will be optimised once `Promise.allSettled` lands in official runtimes.
+The 'Parallel' module is a functional wrapper over native `Promise.all` api, _ceteris paribus_. Design approach is similar to that of `Task`, except that it only accepts `Task`s as input parameters. `TypeScript` signature restricts it to operate on `thunk`-ed, `Option`-returning promises. It is advised to only use built-in `Task` constructors for the input functions. No guarantees in regards to control flow (read - rejections) are given otherwise. This will be optimised once `Promise.allSettled` lands in official runtimes.
 
 ```typescript
 const all = Parallel(complete(42), fail(9001));
@@ -97,7 +97,7 @@ all().then(console.log);
 
 `Continuation Task a -> Continuation Task b`
 
-`Task`s themselves do not modify the native promise continuation flow meaning once `then` method of a completed task is entered we're back in the world of rejections. This is where `Continuation` comonad comes handy as it:
+`Task`'s themselves do not modify the native promise continuation flow meaning once `then` method of a completed task is entered we're back in the world of rejections. This is where `Continuation` comonad comes handy as it:
 
 - will return the first faulty set of results to the caller (while ignoring further continuations);
 - won't expose native `then` method until the last continuation returns;

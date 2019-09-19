@@ -25,10 +25,12 @@ test('faulted tasks results are being carried over', async t => {
 });
 
 test('mixed-results tasks results are being carried over', async t => {
-  const task = await Parallel(fail(42), complete(9001))();
+  const tasks = await Parallel(fail(42), complete(9001))();
 
-  expectFaulted(task.filter(isFaulted), t, ([{ fault }]) => t.equal(fault, 42));
-  expectCompleted(task.filter(x => !isFaulted(x)), t, ([{ value }]) =>
+  expectFaulted(tasks.filter(isFaulted), t, ([{ fault }]) =>
+    t.equal(fault, 42)
+  );
+  expectCompleted(tasks.filter(x => !isFaulted(x)), t, ([{ value }]) =>
     t.equal(value, 9001)
   );
 });
