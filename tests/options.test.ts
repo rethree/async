@@ -32,9 +32,11 @@ test('allCompleted detects complete-only results', async t => {
 });
 
 test('Options are matched structurally', async t => {
-  const x = Option().Completed({ value: 4 });
-  const y = Option().Completed({ value: 4 });
+  const optsX = Option();
+  const optsY = Option();
+  const x = optsX.Completed({ value: 4 });
+  const y = optsY.Completed({ value: 4 });
 
-  t.true(Option().is.Completed(x));
-  t.true(Option().is.Completed(y));
+  t.true(optsY.is.Completed(x));
+  t.true(optsY.is.Completed(y));
 });
