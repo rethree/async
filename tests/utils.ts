@@ -1,8 +1,8 @@
-import { Completion, Failure, Option } from '../lib/types';
+import { Completion, Failure, Options } from '../lib/types';
 import { allCompleted, isFaulted } from '../lib';
 
 export const expectFaulted = <a>(
-  task: Option<a>[],
+  task: Options<a>[],
   t: any,
   test: (results: Failure[]) => PromiseLike<void> | void
 ) => {
@@ -11,7 +11,7 @@ export const expectFaulted = <a>(
 };
 
 export const expectCompleted = <a>(
-  task: Option<a>[],
+  task: Options<a>[],
   t: any,
   test: (completed: Completion<a>[]) => PromiseLike<void> | void
 ) => {

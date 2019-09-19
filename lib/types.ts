@@ -10,21 +10,17 @@ export type Meta = {
   readonly meta: StrMap;
 };
 
-export type Failure = Meta & {
-  readonly tag: 'faulted';
-  readonly fault: any;
-};
+export type Failure = { fault: any; meta?: StrMap };
 
-export type Completion<a> = Meta & {
-  readonly tag: 'completed';
-  readonly value: a;
-};
+export type Completion<a> = { value: a; meta?: StrMap };
 
-export type Option<a> = Failure | Completion<a>;
+export type Options<a> =
+  | Failure & { tag: 'Faulted' }
+  | Completion<a> & { tag: 'Completed' };
 
 export type AsyncTask<a, bs extends any[] = any[]> = (
   ...args: bs
-) => PromiseLike<Option<a>[]>;
+) => PromiseLike<Options<a>[]>;
 
 export type Functor<a> = {
   readonly map: <b>(f: (x: a) => b) => Functor<b>;
