@@ -1,5 +1,5 @@
 import { test } from 'tap';
-import { complete, fail, Parallel, Continuation, Task, pipe } from '../lib';
+import { complete, Continuation, fail, Parallel, pipe, Task } from '../lib';
 
 test('map is eager', async t => {
   const effects: number[] = [];
@@ -133,4 +133,14 @@ test('results extended by pipe are transformed according to morphism provided', 
 
   t.equal(piped.length, 1);
   t.equal(piped[0]['value'], 42);
+});
+
+test('Unresolved initial argument is triggered as a part of the chain', async t => {
+  const effects: number[] = [];
+
+  await Continuation(Task(() => Promise.resolve(effects.push(10)))).pipe(_ =>
+    complete(effects.push(20))
+  )();
+
+  t.same(effects, [10, 20]);
 });
