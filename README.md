@@ -7,6 +7,7 @@
 [![dependencies
 Status](https://david-dm.org/rethree/async/status.svg)](https://david-dm.org/rethree/async)
 [![devDependencies Status](https://david-dm.org/rethree/async/dev-status.svg)](https://david-dm.org/rethree/async?type=dev)
+[![Built with Spacemacs](https://cdn.rawgit.com/syl20bnr/spacemacs/442d025779da2f62fc86c2082703697714db6514/assets/spacemacs-badge.svg)](http://spacemacs.org)
 
 Minimal set of **functional async primitives**.
 
