@@ -50,6 +50,12 @@ test('task.complete creates a task from a promise', async t => {
   expectCompleted(task, t, ([{ value }]) => t.equal(value, 42));
 });
 
+test('task created with complete is lazy', async t => {
+  const task = await complete(Promise.resolve(42))();
+
+  expectCompleted(task, t, ([{ value }]) => t.equal(value, 42));
+});
+
 test('task.fail creates a task from raw value', async t => {
   const task = await fail(42)();
 
