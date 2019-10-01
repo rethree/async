@@ -1,4 +1,5 @@
 export type _ = unknown;
+export type Nil = undefined;
 
 export type StrMap<a = any> = {
   readonly [key: string]: a;
@@ -15,8 +16,8 @@ export type Failure = { fault: any; meta?: StrMap };
 export type Completion<a> = { value: a; meta?: StrMap };
 
 export type Options<a> =
-  | Failure & { tag: 'Faulted' }
-  | Completion<a> & { tag: 'Completed' };
+  | Failure & { tag: "Faulted" }
+  | Completion<a> & { tag: "Completed" };
 
 export type AsyncTask<a, bs extends any[] = any[]> = (
   ...args: bs
@@ -36,4 +37,5 @@ export type ContinuationComonad<a> = {
   readonly extend: <b>(
     f: (wa: ContinuationComonad<a>) => AsyncTask<b>
   ) => ContinuationComonad<b>;
-} & Functor<a> & AsyncTask<a>;
+} & Functor<a> &
+  AsyncTask<a>;
