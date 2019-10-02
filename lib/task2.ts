@@ -1,41 +1,44 @@
-import { _, Nil } from "./types";
+import { _, Func, Join } from "./types";
+import { Option } from "./options";
 
-const Empty = undefined;
-
-class Sequence<a, b, c> {
-  constructor(public init: Sequence<_, a, b> | Nil, public f: (x: b) => c) {}
-
-  append<d>(cd: (y: c) => d) {
-    return new Sequence(this, cd);
-  }
-}
+const O = Option();
 
 class Continuation<a, b> {
+  private readonly q: Func<_, _>[];
+
   constructor(
-    private f: (complete: (x: _) => void) => void,
-    private seq: Sequence<_, a, b>
-  ) {}
+    private readonly trigger: (fn: (x: _) => void) => void,
+    private readonly init: Func<_, _ | Task<_>>[],
+    private readonly last: (x: a) => b
+  ) {
+    this.q = [...init, last];
+  }
 
-  then<c>(bc: (y: b | Task2<b>) => c | Task2<c>) {
-    return new Continuation(this.f, new Sequence(this.seq, bc));
+  then<c>(bc: (y: b) => c | Task<c>): Continuation<b, c> {
+    return new Continuation(
+      this.trigger,
+      [this.last, ...this.init],
+      bc as Join
+    );
+  }
+
+  run() {
+    const [head, ...tail] = this.q;
+    const start = this.trigger(head);
+    for (const xf of tail) {
+    }
+    this.trigger(this.q.reduce((acc, head) => (x: _) => {}));
   }
 }
 
-export class Task2<a> {
-  constructor(private f: (complete: (x: a) => void) => void) {}
+export class Task<a> {
+  constructor(private trigger: (fn: (x: a) => void) => void) {}
 
-  then<b>(ab: (x: a) => b | Task2<b>) {
-    return new Continuation(this.f, new Sequence(Empty, ab));
+  then<b>(ab: (x: a) => b | Task<b>): Continuation<a, b> {
+    return new Continuation(this.trigger, [], ab as Join);
   }
 
-  exec() {}
+  run() {
+    this.trigger(Function.prototype as any);
+  }
 }
-
-const x = new Task2(complete => {
-  setTimeout(() => complete(42), 100);
-});
-
-const s = new Sequence(
-  new Sequence<_, number, number>(Empty, x => x + 5),
-  x => x + 32
-);

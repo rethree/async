@@ -5,6 +5,9 @@ export type StrMap<a = any> = {
   readonly [key: string]: a;
 };
 
+export type Func<a, b> = (x: a) => b;
+export type Join = any;
+
 export type Lazy<a> = () => a;
 
 export type Meta = {
