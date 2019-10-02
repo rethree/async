@@ -1,44 +1,44 @@
-import { _, Func, Join } from "./types";
+import { Func, Join, _ } from "./types";
+import { tryCatch } from "./utils";
 import { Option } from "./options";
 
-const O = Option();
+const fold = (x: _, [fx, ...fs]: Func<_, _>[]) => {
+  const y = fx(x);
+  return fs.length > 0 ? fold(y, fs) : y;
+};
 
 class Continuation<a, b> {
   private readonly q: Func<_, _>[];
 
   constructor(
     private readonly trigger: (fn: (x: _) => void) => void,
-    private readonly init: Func<_, _ | Task<_>>[],
-    private readonly last: (x: a) => b
+    init: Func<_, _ | Task<_>>[],
+    last: (x: a) => b
   ) {
     this.q = [...init, last];
   }
 
   then<c>(bc: (y: b) => c | Task<c>): Continuation<b, c> {
-    return new Continuation(
-      this.trigger,
-      [this.last, ...this.init],
-      bc as Join
-    );
+    return new Continuation(this.trigger, this.q, bc as Join);
   }
 
-  run() {
-    const [head, ...tail] = this.q;
-    const start = this.trigger(head);
-    for (const xf of tail) {
+  run(complete = Function.prototype) {
+    try {
+      this.trigger(x => complete(tryCatch(fold)(x, this.q)));
+    } catch (fault) {
+      complete(Option<b>().Faulted({ fault }));
     }
-    this.trigger(this.q.reduce((acc, head) => (x: _) => {}));
   }
 }
 
 export class Task<a> {
-  constructor(private trigger: (fn: (x: a) => void) => void) {}
+  constructor(private readonly trigger: (fn: (x: a) => void) => void) {}
 
   then<b>(ab: (x: a) => b | Task<b>): Continuation<a, b> {
     return new Continuation(this.trigger, [], ab as Join);
   }
 
-  run() {
-    this.trigger(Function.prototype as any);
+  run(complete = Function.prototype) {
+    this.trigger(complete as any);
   }
 }
