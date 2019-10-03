@@ -1,5 +1,5 @@
-import { ofType, unionize } from 'unionize';
-import { Completion, Failure, Options, _ } from './types';
+import { ofType, unionize } from "unionize";
+import { Completion, Failure, Options, _ } from "./types";
 
 export const Option = <a>() =>
   unionize({
@@ -7,10 +7,12 @@ export const Option = <a>() =>
     Completed: ofType<Completion<a>>()
   });
 
+export const O = Option();
+
 export const isFaulted = <a>(
   x: Options<a>
-): x is { tag: 'Faulted' } & Failure => Option().is.Faulted(x);
+): x is { tag: "Faulted" } & Failure => Option().is.Faulted(x);
 
 export const allCompleted = <a>(
   x: Options<a>[]
-): x is ({ tag: 'Completed' } & Completion<a>)[] => !x.some(isFaulted);
+): x is ({ tag: "Completed" } & Completion<a>)[] => !x.some(isFaulted);

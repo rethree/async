@@ -1,13 +1,14 @@
 import { Option } from "./options";
+import { Options } from "./types";
 
 export const tryCatch = <as extends any[], b>(f: (...xs: as) => b) => (
   ...xs: as
-) => {
-  const option = Option<b>();
+): Options<b> => {
+  const Opt = Option<b>();
   try {
-    return option.Completed({ value: f(...xs) });
+    return Opt.Completed({ value: f(...xs) });
   } catch (err) {
-    return option.Faulted({
+    return Opt.Faulted({
       fault: {
         error: err,
         args: xs

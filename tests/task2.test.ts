@@ -1,4 +1,4 @@
-import { Task } from "../lib/task2";
+import { Task } from "../lib/task";
 
 const x = new Task<number>(complete => {
   setTimeout(() => complete(42), 100);
