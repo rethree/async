@@ -16,3 +16,11 @@ export const tryCatch = <as extends any[], b>(f: (...xs: as) => b) => (
     });
   }
 };
+
+export const withSymbol = <a extends object>(x: a, y: symbol) =>
+  Object.defineProperty(x, y, {
+    value: true,
+    writable: false,
+    configurable: false,
+    enumerable: false
+  });

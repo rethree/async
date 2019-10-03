@@ -8,11 +8,11 @@ import {
   ContinuationDef,
   Task$
 } from "./types";
-import { tryCatch } from "./utils";
+import { tryCatch, withSymbol } from "./utils";
 
 const isTask = (x: any): x is TaskDef<_> => typeof x === "object" && Task$ in x;
 
-const fold = (x: _, [f, ...fs]: Func<_, _>[], done: Func<Options<_>, _>) => {
+const fold = (x: any, [f, ...fs]: Func<_, _>[], done: Func<Options<_>, _>) => {
   if (O.is.Faulted(x)) void done(x);
   const something = tryCatch(f)(x);
   if (O.is.Faulted(something)) void done(something);
@@ -29,43 +29,30 @@ const fold = (x: _, [f, ...fs]: Func<_, _>[], done: Func<Options<_>, _>) => {
   }
 };
 
+const create = <a, b>(
+  trigger: (fa: Func<a, void>) => void,
+  q: Func<_, _>[],
+  does: (x: a) => (done: Func<Options<_>, _>) => void
+): ContinuationDef<b> => ({
+  pipe: bc => Continuation(trigger, q, bc as Join),
+  then(done) {
+    try {
+      trigger(x => does(x)(done));
+    } catch (fault) {
+      done(Option<b>().Faulted({ fault }));
+    }
+  }
+});
+
 const Continuation = <a, b>(
-  trigger: (f_: Func<_, void>) => void,
+  trigger: (f_: Func<a, void>) => void,
   init: Func<_, _ | TaskDef<_>>[],
   last: (x: a) => b
 ): ContinuationDef<b> => {
   const q: Func<_, _>[] = [...init, last];
-
-  return {
-    pipe: bc => Continuation(trigger, q, bc as Join),
-    then(done) {
-      try {
-        trigger(x => fold(x, q, done));
-      } catch (fault) {
-        done(Option<b>().Faulted({ fault }));
-      }
-    }
-  };
+  return create<a, b>(trigger, q, x => done => fold(x, q, done));
 };
 
 export const Task = <a>(
   trigger: (fa: Func<Options<a>, void>) => void
-): TaskDef<a> => {
-  const instance: Omit<TaskDef<a>, typeof Task$> = {
-    pipe: ab => Continuation(trigger, [], ab as Join),
-    then(done) {
-      try {
-        trigger(done);
-      } catch (fault) {
-        done(Option<a>().Faulted({ fault }));
-      }
-    }
-  };
-
-  return Object.defineProperty(instance, Task$, {
-    value: true,
-    writable: false,
-    configurable: false,
-    enumerable: false
-  });
-};
+): TaskDef<a> => withSymbol(create(trigger, [], x => done => done(x)), Task$);

@@ -29,8 +29,6 @@ export type ContinuationDef<a> = {
   then: <b>(done: Func<Options<a>, b>) => void;
 };
 
-export type TaskDef<a> = {
+export type TaskDef<a> = ContinuationDef<a> & {
   [Task$]: true;
-  pipe: <b>(ab: (x: a) => b | TaskDef<b>) => ContinuationDef<b>;
-  then: <b>(done: Func<Options<a>, b>) => void;
 };
