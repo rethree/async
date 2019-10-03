@@ -22,7 +22,7 @@ class Continuation<a, b> {
   private readonly q: Func<_, _>[];
 
   constructor(
-    private readonly trigger: (fn: Func<_, void>) => void,
+    protected readonly trigger: (f_: Func<_, void>) => void,
     init: Func<_, _ | Task<_>>[],
     last: (x: a) => b
   ) {
@@ -43,13 +43,17 @@ class Continuation<a, b> {
 }
 
 export class Task<a> {
-  constructor(private readonly trigger: (fn: (x: a) => void) => void) {}
+  constructor(private readonly trigger: (f_: Func<_, void>) => void) {}
 
   pipe<b>(ab: (x: a) => b | Task<b>): Continuation<a, b> {
     return new Continuation(this.trigger, [], ab as Join);
   }
 
-  then<b>(done: Func<a, b>) {
-    this.trigger(done);
+  then<b>(done: Func<Options<a>, b>) {
+    try {
+      this.trigger(done);
+    } catch (fault) {
+      done(O.Faulted({ fault }));
+    }
   }
 }
