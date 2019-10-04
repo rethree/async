@@ -13,14 +13,12 @@ const evaluate = async (x: _, [f, ...fs]: Xf[], done: Func<Options<_>, _>) => {
     O.match(maybeOption, {
       Faulted: _ => done(maybeOption),
       Completed: ({ value }) => {
-        if (fs.length > 0) {
-          evaluate(value, fs, done);
-        } else done(maybeOption);
+        fs.length > 0 ? evaluate(value, fs, done) : done(maybeOption);
       },
       default: value => {
-        if (fs.length > 0) {
-          evaluate(value, fs, done);
-        } else done(O.Completed({ value }));
+        fs.length > 0
+          ? evaluate(value, fs, done)
+          : done(O.Completed({ value }));
       }
     });
   } catch (fault) {
@@ -43,19 +41,21 @@ const task = <a>(
   }
 });
 
-export const Task = <a>(action: (fa: Func<a, void>) => void): TaskDef<a> =>
-  withSymbol(
+export const Task = <a>(action: (fa: Func<a, void>) => void): TaskDef<a> => {
+  const Opt = Option<a>();
+  return withSymbol(
     {
       ...task(action, []),
-      then: done => {
+      then: (done: Func<Options<a>, _>) => {
         try {
           action(value => {
-            done(O.Completed({ value }));
+            done(Opt.Completed({ value }));
           });
         } catch (fault) {
-          done(Option<a>().Faulted({ fault }));
+          done(Opt.Faulted({ fault }));
         }
       }
     },
     Task$
   );
+};
