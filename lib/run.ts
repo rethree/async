@@ -1,5 +1,5 @@
 import { O, Option } from "./options";
-import { ContinuationDef, Func, Options, Task$, TaskDef, _ } from "./types";
+import { TaskDef, Func, Options, Task$, TaskDef, _ } from "./types";
 import { tryCatch, withSymbol } from "./utils";
 
 const isTask = (x: any): x is TaskDef<_> => typeof x === "object" && Task$ in x;
@@ -8,9 +8,8 @@ const parse = (x: any, [f, ...fs]: Func<_, _>[], done: Func<Options<_>, _>) => {
   if (O.is.Faulted(x)) void done(x);
   const something = tryCatch(f)(x);
   if (O.is.Faulted(something)) {
-    void done(something)
-  }
-  else {
+    void done(something);
+  } else {
     const { value } = something;
     const stop = fs.length < 1;
     return isTask(value)
@@ -18,18 +17,18 @@ const parse = (x: any, [f, ...fs]: Func<_, _>[], done: Func<Options<_>, _>) => {
         ? value.then(done)
         : value.then(x => parse(x, fs, done))
       : stop
-        ? done(something)
-        : parse(value, fs, done);
+      ? done(something)
+      : parse(value, fs, done);
   }
 };
 
-const task = <a> (
+const task = <a>(
   action: (fa: Func<_, void>) => void,
   q: Func<_, _>[]
-): ContinuationDef<a> => ({
+): TaskDef<a> => ({
   map: ab => task(action, [...q, ab]),
   chain: atb => task(action, [...q, atb]),
-  then (done) {
+  then(done) {
     try {
       action(x => parse(x, q, done));
     } catch (fault) {
@@ -38,7 +37,7 @@ const task = <a> (
   }
 });
 
-export const Task = <a> (
+export const Task = <a>(
   action: (fa: Func<Options<a>, void>) => void
 ): TaskDef<a> => withSymbol(task<a>(action, []), Task$);
 
@@ -47,21 +46,29 @@ export const Task = <a> (
     setTimeout(() => fx(10), 100);
   })
     .map(x => x + 10)
-    .chain(x => Task(fx => {
-      setTimeout(() => fx(x + 9000), 100)
-    })).chain(x => Task(fx => {
-      console.log(x)
-      setTimeout(() => fx(x + 100), 100)
-    })).chain(x => Task(fx => {
-      throw Error(42)
-      console.log(x)
-      queueMicrotask(() => fx(x - 99))
-    }))
-    .map(x => x + 23)
+    .chain(x =>
+      Task(fx => {
+        setTimeout(() => fx(x + 9000), 100);
+      })
+    )
+    .chain(x =>
+      Task(fx => {
+        console.log(x);
+        setTimeout(() => fx(x + 100), 100);
+      })
+    )
+    .chain(x =>
+      Task(fx => {
+        throw Error(42);
+        console.log(x);
+        queueMicrotask(() => fx(x - 99));
+      })
+    )
+    .map(x => x + 23);
 
   // t.then(console.log)
   const x = await t;
-  console.log(x)
+  console.log(x);
 
   // t.then(console.log);
-})()
+})();

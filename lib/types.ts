@@ -21,14 +21,12 @@ export type Options<a> =
   | Failure & { tag: "Faulted" }
   | Completion<a> & { tag: "Completed" };
 
-export type ContinuationDef<a> = {
-  map: <b>(ab: Func<a, b>) => ContinuationDef<b>;
-  chain: <b>(ab: Func<a, TaskDef<b>>) => ContinuationDef<b>;
+export type TaskDef<a> = {
+  map: <b>(ab: Func<a, b>) => TaskDef<b>;
+  chain: <b>(ab: Func<a, TaskDef<b>>) => TaskDef<b>;
   then: <b>(done: Func<Options<a>, b>) => void;
 };
 
-export type TaskDef<a> = ContinuationDef<a> & {
-  [Task$]: true;
-};
+export type Thenable<a> = PromiseLike<a>;
 
 export type Xf = Func<_, _ | TaskDef<_>>;

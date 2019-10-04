@@ -1,13 +1,14 @@
 import { O, Option } from "./options";
-import { ContinuationDef, Func, Options, Task$, TaskDef, Xf, _ } from "./types";
+import { TaskDef, Func, Options, Task$, Xf, _ } from "./types";
 import { withSymbol } from "./utils";
 
-const isTask = (x: any): x is TaskDef<_> => typeof x === "object" && Task$ in x;
+const isThenable = (x: any): x is PromiseLike<_> =>
+  typeof x === "object" && "then" in x && typeof x.then === "function";
 
 const evaluate = async (x: _, [f, ...fs]: Xf[], done: Func<Options<_>, _>) => {
   try {
     const something = f(x);
-    const maybeOption = isTask(something)
+    const maybeOption = isThenable(something)
       ? await something
       : (something as any);
     O.match(maybeOption, {
@@ -26,10 +27,7 @@ const evaluate = async (x: _, [f, ...fs]: Xf[], done: Func<Options<_>, _>) => {
   }
 };
 
-const task = <a>(
-  action: (fa: Func<_, void>) => void,
-  q: Xf[]
-): ContinuationDef<a> => ({
+const task = <a>(action: (fa: Func<_, void>) => void, q: Xf[]): TaskDef<a> => ({
   map: ab => task(action, [...q, ab]),
   chain: atb => task(action, [...q, atb]),
   then(done) {
