@@ -1,4 +1,3 @@
-import { AsyncTask } from './types';
+import { TaskDef, _ } from "./types";
 
-export const Parallel = <a>(...tasks: AsyncTask<a>[]): AsyncTask<a> => () =>
-  Promise.all(tasks.flatMap(lazy => lazy())).then(x => x.flat());
+export const Parallel = <a>(...tasks: TaskDef<a>[]): TaskDef<_[]> => {};

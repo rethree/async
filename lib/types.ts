@@ -8,9 +8,6 @@ export type StrMap<a = any> = {
 };
 
 export type Func<a, b> = (x: a) => b;
-export type Join = any;
-
-export type Lazy<a> = () => a;
 
 export type Meta = {
   readonly meta: StrMap;
@@ -25,10 +22,13 @@ export type Options<a> =
   | Completion<a> & { tag: "Completed" };
 
 export type ContinuationDef<a> = {
-  pipe: <b>(bc: Func<a, b | TaskDef<b>>) => ContinuationDef<b>;
+  map: <b>(ab: Func<a, b>) => ContinuationDef<b>;
+  chain: <b>(ab: Func<a, TaskDef<b>>) => ContinuationDef<b>;
   then: <b>(done: Func<Options<a>, b>) => void;
 };
 
 export type TaskDef<a> = ContinuationDef<a> & {
   [Task$]: true;
 };
+
+export type Xf = Func<_, _ | TaskDef<_>>;

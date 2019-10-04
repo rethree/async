@@ -1,58 +1,35 @@
 import { O, Option } from "./options";
-import {
-  Func,
-  Join,
-  Options,
-  _,
-  TaskDef,
-  ContinuationDef,
-  Task$
-} from "./types";
-import { tryCatch, withSymbol } from "./utils";
+import { ContinuationDef, Func, Options, Task$, TaskDef, _, Xf } from "./types";
+import { withSymbol } from "./utils";
 
 const isTask = (x: any): x is TaskDef<_> => typeof x === "object" && Task$ in x;
 
-const fold = (x: any, [f, ...fs]: Func<_, _>[], done: Func<Options<_>, _>) => {
-  if (O.is.Faulted(x)) void done(x);
-  const something = tryCatch(f)(x);
-  if (O.is.Faulted(something)) void done(something);
-  else {
-    const { value } = something;
-    const stop = fs.length < 1;
-    return isTask(value)
-      ? stop
-        ? value.then(done)
-        : value.then(x => fold(x, fs, done))
-      : stop
-      ? done(something)
-      : fold(value, fs, done);
+const evaluate = async (x: _, [f, ...fs]: Xf[], done: Func<Options<_>, _>) => {
+  try {
+    const something = f(x);
+    const value = isTask(something) ? await something : something;
+    if (fs.length > 0) {
+      evaluate(value, fs, done);
+    } else done(O.Completed({ value }));
+  } catch (fault) {
+    done(O.Faulted({ fault }));
   }
 };
 
-const create = <a, b>(
-  trigger: (fa: Func<a, void>) => void,
-  q: Func<_, _>[],
-  does: (x: a) => (done: Func<Options<_>, _>) => void
-): ContinuationDef<b> => ({
-  pipe: bc => Continuation(trigger, q, bc as Join),
+const task = <a>(
+  action: (fa: Func<_, void>) => void,
+  q: Xf[]
+): ContinuationDef<a> => ({
+  map: ab => task(action, [...q, ab]),
+  chain: atb => task(action, [...q, atb]),
   then(done) {
     try {
-      trigger(x => does(x)(done));
+      action(x => evaluate(x, q, done));
     } catch (fault) {
-      done(Option<b>().Faulted({ fault }));
+      done(Option<a>().Faulted({ fault }));
     }
   }
 });
 
-const Continuation = <a, b>(
-  trigger: (f_: Func<a, void>) => void,
-  init: Func<_, _ | TaskDef<_>>[],
-  last: (x: a) => b
-): ContinuationDef<b> => {
-  const q: Func<_, _>[] = [...init, last];
-  return create<a, b>(trigger, q, x => done => fold(x, q, done));
-};
-
-export const Task = <a>(
-  trigger: (fa: Func<Options<a>, void>) => void
-): TaskDef<a> => withSymbol(create(trigger, [], x => done => done(x)), Task$);
+export const Task = <a>(action: (fa: Func<a, void>) => void): TaskDef<a> =>
+  withSymbol(task(action, []), Task$);
