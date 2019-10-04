@@ -7,10 +7,22 @@ const isTask = (x: any): x is TaskDef<_> => typeof x === "object" && Task$ in x;
 const evaluate = async (x: _, [f, ...fs]: Xf[], done: Func<Options<_>, _>) => {
   try {
     const something = f(x);
-    const value = isTask(something) ? await something : something;
-    if (fs.length > 0) {
-      evaluate(value, fs, done);
-    } else done(O.Completed({ value }));
+    const maybeOption = isTask(something)
+      ? await something
+      : (something as any);
+    O.match(maybeOption, {
+      Faulted: _ => done(maybeOption),
+      Completed: ({ value }) => {
+        if (fs.length > 0) {
+          evaluate(value, fs, done);
+        } else done(maybeOption);
+      },
+      default: value => {
+        if (fs.length > 0) {
+          evaluate(value, fs, done);
+        } else done(O.Completed({ value }));
+      }
+    });
   } catch (fault) {
     done(O.Faulted({ fault }));
   }
@@ -36,7 +48,13 @@ export const Task = <a>(action: (fa: Func<a, void>) => void): TaskDef<a> =>
     {
       ...task(action, []),
       then: done => {
-        action(done);
+        try {
+          action(value => {
+            done(O.Completed({ value }));
+          });
+        } catch (fault) {
+          done(Option<a>().Faulted({ fault }));
+        }
       }
     },
     Task$
