@@ -1,5 +1,5 @@
 import { O, Option } from "./options";
-import { ContinuationDef, Func, Options, Task$, TaskDef, _, Xf } from "./types";
+import { ContinuationDef, Func, Options, Task$, TaskDef, Xf, _ } from "./types";
 import { withSymbol } from "./utils";
 
 const isTask = (x: any): x is TaskDef<_> => typeof x === "object" && Task$ in x;
@@ -32,4 +32,12 @@ const task = <a>(
 });
 
 export const Task = <a>(action: (fa: Func<a, void>) => void): TaskDef<a> =>
-  withSymbol(task(action, []), Task$);
+  withSymbol(
+    {
+      ...task(action, []),
+      then: done => {
+        action(done);
+      }
+    },
+    Task$
+  );
