@@ -1,8 +1,6 @@
 export type _ = unknown;
 export type Nil = undefined;
 
-export const Task$ = Symbol("Task");
-
 export type StrMap<a = any> = {
   readonly [key: string]: a;
 };
@@ -29,6 +27,6 @@ export type TaskDef<a> = {
 
 export type Thenable<a> = PromiseLike<a>;
 
-export type Xf =
+export type Computation =
   | [Func<_, TaskDef<_>>, true, true | Nil]
   | [Func<_, _>, false, true | Nil];
