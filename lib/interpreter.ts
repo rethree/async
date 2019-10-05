@@ -15,9 +15,9 @@ export const exec = async (
       Faulted: _ =>
         resumable && active ? exec(maybeOption, fs, done) : done(maybeOption),
       Completed: ({ value }) =>
-        void active ? exec(value, fs, done) : done(maybeOption),
+        active ? exec(value, fs, done) : done(maybeOption),
       default: value =>
-        void active ? exec(value, fs, done) : done(O.Completed({ value }))
+        active ? exec(value, fs, done) : done(O.Completed({ value }))
     });
   } catch (fault) {
     done(O.Faulted({ fault }));

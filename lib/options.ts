@@ -9,9 +9,7 @@ export const Option = <a>() =>
 
 export const O = Option();
 
-export const isFaulted = <a>(
-  x: Options<a>
-): x is { tag: "Faulted" } & Failure => Option().is.Faulted(x);
+export const isFaulted = (x: any): x is Failure => Option().is.Faulted(x);
 
 export const allCompleted = <a>(
   x: Options<a>[]

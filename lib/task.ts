@@ -17,11 +17,11 @@ const task = <a>(
   }
 });
 
-export const Task = <a>(action: (fa: Func<a, void>) => void): TaskDef<a> => {
+export const Task = <a>(action: (fa: (x: a) => void) => void): TaskDef<a> => {
   const option = Option<a>();
   return {
     ...task(action, []),
-    then: (done: Func<Options<a>, _>) => {
+    then: <b>(done: Func<Options<a>, b>) => {
       try {
         action(value => {
           done(option.Completed({ value }));

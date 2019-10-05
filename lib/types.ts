@@ -20,8 +20,16 @@ export type Options<a> =
   | Completion<a> & { tag: "Completed" };
 
 export type TaskDef<a> = {
-  map: <b>(ab: Func<a, b>, resume?: true) => TaskDef<b>;
-  chain: <b>(ab: Func<a, TaskDef<b>>, resume?: true) => TaskDef<b>;
+  map: <b, c extends [Func<a, b>, true?]>(
+    ...args: c
+  ) => TaskDef<c[1] extends Nil ? ReturnType<c[0]> : Failure>;
+  chain: <b, c extends [Func<a, TaskDef<b>>, true?]>(
+    ...args: c
+  ) => c[1] extends Nil
+    ? ReturnType<c[0]>
+    : TaskDef<
+        ReturnType<c[0]> extends TaskDef<infer b> ? b | Failure : _ | Failure
+      >;
   then: <b>(done: Func<Options<a>, b>) => void;
 };
 
