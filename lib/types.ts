@@ -27,9 +27,7 @@ export type TaskDef<a> = {
     ...args: c
   ) => c[1] extends Nil
     ? ReturnType<c[0]>
-    : TaskDef<
-        ReturnType<c[0]> extends TaskDef<infer b> ? b | Failure : _ | Failure
-      >;
+    : TaskDef<(ReturnType<c[0]> extends TaskDef<infer b> ? b : _) | Failure>;
   then: <b>(done: Func<Options<a>, b>) => void;
 };
 
