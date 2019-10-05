@@ -2,25 +2,25 @@ import { O, Option } from "./options";
 import { TaskDef, Func, Options, Task$, Xf, _ } from "./types";
 import { withSymbol } from "./utils";
 
-const isThenable = (x: any): x is PromiseLike<_> =>
-  typeof x === "object" && "then" in x && typeof x.then === "function";
-
-const evaluate = async (x: _, [f, ...fs]: Xf[], done: Func<Options<_>, _>) => {
+const evaluate = async (
+  x: _,
+  [[f, blocking, resumable], ...fs]: Xf[],
+  done: Func<Options<_>, _>
+) => {
   try {
     const something = f(x);
-    const maybeOption = isThenable(something)
-      ? await something
-      : (something as any);
+    const maybeOption = blocking ? await something : (something as any);
+    const active = fs.length > 0;
+
     O.match(maybeOption, {
-      Faulted: _ => done(maybeOption),
-      Completed: ({ value }) => {
-        fs.length > 0 ? evaluate(value, fs, done) : done(maybeOption);
-      },
-      default: value => {
-        fs.length > 0
-          ? evaluate(value, fs, done)
-          : done(O.Completed({ value }));
-      }
+      Faulted: _ =>
+        resumable && active
+          ? evaluate(maybeOption, fs, done)
+          : done(maybeOption),
+      Completed: ({ value }) =>
+        void active ? evaluate(value, fs, done) : done(maybeOption),
+      default: value =>
+        void active ? evaluate(value, fs, done) : done(O.Completed({ value }))
     });
   } catch (fault) {
     done(O.Faulted({ fault }));
@@ -28,8 +28,8 @@ const evaluate = async (x: _, [f, ...fs]: Xf[], done: Func<Options<_>, _>) => {
 };
 
 const task = <a>(action: (fa: Func<_, void>) => void, q: Xf[]): TaskDef<a> => ({
-  map: ab => task(action, [...q, ab]),
-  chain: atb => task(action, [...q, atb]),
+  map: (ab, resume) => task(action, [...q, [ab, false, resume]]),
+  chain: (atb, resume) => task(action, [...q, [atb, true, resume]]),
   then(done) {
     try {
       action(x => evaluate(x, q, done));
